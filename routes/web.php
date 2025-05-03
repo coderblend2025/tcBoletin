@@ -19,6 +19,10 @@ Route::get('/work', function () {
     return Inertia::render('work');
 })->name('work');
 
+Route::get('/news', function () {
+    return Inertia::render('news');
+})->name('news');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
     

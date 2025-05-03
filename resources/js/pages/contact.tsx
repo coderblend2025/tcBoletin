@@ -42,85 +42,76 @@ export default function Contact() {
 
     return (
         <MainLayout title="Contacto" auth={auth} bcvInfo={bcvInfo} binanceInfo={binanceInfo}>
-            <Head title="Contacto" />
-
-            <div className="container">
-                <h1 className="text-4xl font-extrabold mb-6 text-center" style={{ color: colorPrimario }}>Contáctanos</h1>
-                <p className="mb-8 text-lg text-center" style={{ color: colorTexto }}>¿Tienes preguntas o sugerencias? ¡Estamos aquí para ayudarte!</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <Head title="Contacto" />
+    
+        <section className="container">
+            <div className="bg-white rounded-2xl shadow-md p-8">
+                <h1 className="text-3xl font-extrabold text-blue-900 mb-4 text-center">Contáctanos</h1>
+                <p className="text-gray-700 text-center mb-10">
+                    ¿Tienes preguntas, comentarios o sugerencias? ¡Estamos aquí para ayudarte! Completa el formulario o utiliza nuestra información de contacto.
+                </p>
+    
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Información de Contacto */}
-                    <div className="bg-white rounded-lg p-6" style={{ backgroundColor: colorFondoClaro }}>
-                        <h2 className="text-2xl font-semibold mb-4" style={{ color: colorPrimario }}>Nuestra Información</h2>
-                        <p className="mb-4"><strong style={{ color: colorPrimario }}>Dirección:</strong> Av. Blanco Galindo Km 8.5 Una cuadra al norte, Cochabamba, Bolivia</p>
-                        <p className="mb-4"><strong style={{ color: colorPrimario }}>Email:</strong> info@tuempresa.com</p>
-                        <p className="mb-4"><strong style={{ color: colorPrimario }}>Teléfono:</strong> +591 XXXXXXXXX</p>
+                    <div className="rounded-xl p-6" style={{ backgroundColor: '#EBFFF2' }}>
+                        <h2 className="text-2xl font-bold text-blue-900 mb-4">Nuestra Información</h2>
+                        <ul className="text-gray-700 space-y-4">
+                            <li>
+                                <strong className="text-blue-900">Dirección:</strong><br />
+                                Av. Blanco Galindo Km 8.5 Una cuadra al norte, Cochabamba, Bolivia
+                            </li>
+                            <li>
+                                <strong className="text-blue-900">Correo Electrónico:</strong><br />
+                                info@tuempresa.com
+                            </li>
+                            <li>
+                                <strong className="text-blue-900">Teléfono:</strong><br />
+                                +591 XXXXXXXXX
+                            </li>
+                        </ul>
                     </div>
-
+    
                     {/* Formulario de Contacto */}
-                    <form onSubmit={submit} className="bg-white shadow-lg rounded-lg p-8" style={{ backgroundColor: colorPrimario }}>
-                        <h2 className="text-2xl font-semibold mb-6 text-center" style={{ color: 'white' }}>Envíanos un Mensaje</h2>
+                    <form onSubmit={submit} className="bg-blue-900 text-white rounded-xl p-6 shadow-lg">
+                        <h2 className="text-xl font-semibold mb-6 text-center">Envíanos un Mensaje</h2>
+    
+                        {[
+                            { label: 'Nombre', id: 'name', type: 'text', value: data.name, error: errors.name },
+                            { label: 'Correo Electrónico', id: 'email', type: 'email', value: data.email, error: errors.email },
+                            { label: 'Asunto', id: 'subject', type: 'text', value: data.subject, error: errors.subject },
+                        ].map(({ label, id, type, value, error }) => (
+                            <div key={id} className="mb-4">
+                                <label htmlFor={id} className="block text-sm font-bold mb-2">{label}</label>
+                                <input
+                                    id={id}
+                                    type={type}
+                                    value={value}
+                                    onChange={(e) => setData("email", e.target.value)}
+                                    className={`w-full p-3 rounded text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${error ? 'border-red-500 border' : ''}`}
+                                    placeholder={`Tu ${label.toLowerCase()}`}
+                                />
+                                {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+                            </div>
+                        ))}
+    
                         <div className="mb-6">
-                            <label className="block text-sm font-bold mb-2" htmlFor="name" style={{ color: 'white' }}>
-                                Nombre
-                            </label>
-                            <input
-                                className={`shadow border rounded w-full py-3 px-4 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-${colorPrimario} ${errors.name ? 'border-red-500' : ''}`}
-                                id="name"
-                                type="text"
-                                placeholder="Tu nombre"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                            />
-                            {errors.name && <p className="text-red-500 text-xs italic mt-2">{errors.name}</p>}
-                        </div>
-                        <div className="mb-6">
-                            <label className="block text-sm font-bold mb-2" htmlFor="email" style={{ color: 'white' }}>
-                                Correo Electrónico
-                            </label>
-                            <input
-                                className={`shadow border rounded w-full py-3 px-4 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-${colorPrimario} ${errors.email ? 'border-red-500' : ''}`}
-                                id="email"
-                                type="email"
-                                placeholder="Tu correo electrónico"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
-                            {errors.email && <p className="text-red-500 text-xs italic mt-2">{errors.email}</p>}
-                        </div>
-                        <div className="mb-6">
-                            <label className="block text-sm font-bold mb-2" htmlFor="subject" style={{ color: 'white' }}>
-                                Asunto
-                            </label>
-                            <input
-                                className={`shadow border rounded w-full py-3 px-4 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-${colorPrimario} ${errors.subject ? 'border-red-500' : ''}`}
-                                id="subject"
-                                type="text"
-                                placeholder="Asunto del mensaje"
-                                value={data.subject}
-                                onChange={(e) => setData('subject', e.target.value)}
-                            />
-                            {errors.subject && <p className="text-red-500 text-xs italic mt-2">{errors.subject}</p>}
-                        </div>
-                        <div className="mb-6">
-                            <label className="block text-sm font-bold mb-2" htmlFor="message" style={{ color: 'white' }}>
-                                Mensaje
-                            </label>
+                            <label htmlFor="message" className="block text-sm font-bold mb-2">Mensaje</label>
                             <textarea
-                                className={`shadow border rounded w-full py-3 px-4 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-${colorPrimario} ${errors.message ? 'border-red-500' : ''}`}
                                 id="message"
-                                placeholder="Escribe tu mensaje aquí..."
                                 value={data.message}
                                 onChange={(e) => setData('message', e.target.value)}
-                            ></textarea>
-                            {errors.message && <p className="text-red-500 text-xs italic mt-2">{errors.message}</p>}
+                                className={`w-full p-3 rounded text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${errors.message ? 'border-red-500 border' : ''}`}
+                                placeholder="Escribe tu mensaje aquí..."
+                                rows={4}
+                            />
+                            {errors.message && <p className="text-red-400 text-sm mt-1">{errors.message}</p>}
                         </div>
-                        <div className="flex justify-center">
+    
+                        <div className="text-center">
                             <button
-                                className={`bg-white hover:bg-opacity-90 text-${colorPrimario} font-bold py-3 px-6 rounded focus:outline-none focus:ring-2 focus:ring-${colorPrimario} ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 type="submit"
                                 disabled={processing}
-                                style={{ color: colorPrimario }}
+                                className={`bg-white text-blue-900 font-bold py-3 px-6 rounded hover:bg-blue-100 transition-all duration-200 ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 {processing ? 'Enviando...' : 'Enviar Mensaje'}
                             </button>
@@ -128,7 +119,9 @@ export default function Contact() {
                     </form>
                 </div>
             </div>
-        </MainLayout>
+        </section>
+    </MainLayout>
+    
     );
 
 

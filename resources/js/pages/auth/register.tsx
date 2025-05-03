@@ -49,6 +49,7 @@ export default function Register() {
                         onChange={(e) => setData('name', e.target.value)}
                         disabled={processing}
                         placeholder="Nombre completo"
+                        className={`w-full p-3 rounded text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${errors.name ? 'border-red-500 border' : ''}`}
                     />
                     <InputError message={errors.name} className="mt-2" />
                 </div>
@@ -65,6 +66,7 @@ export default function Register() {
                         onChange={(e) => setData('email', e.target.value)}
                         disabled={processing}
                         placeholder="correo@ejemplo.com"
+                        className={`w-full p-3 rounded text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${errors.email ? 'border-red-500 border' : ''}`}
                     />
                     <InputError message={errors.email} />
                 </div>
@@ -81,6 +83,7 @@ export default function Register() {
                         onChange={(e) => setData('password', e.target.value)}
                         disabled={processing}
                         placeholder="Contraseña"
+                        className={`w-full p-3 rounded text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${errors.password ? 'border-red-500 border' : ''}`}
                     />
                     <InputError message={errors.password} />
                 </div>
@@ -97,6 +100,7 @@ export default function Register() {
                         onChange={(e) => setData('password_confirmation', e.target.value)}
                         disabled={processing}
                         placeholder="Confirmar contraseña"
+                        className={`w-full p-3 rounded text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${errors.password_confirmation ? 'border-red-500 border' : ''}`}
                     />
                     <InputError message={errors.password_confirmation} />
                 </div>

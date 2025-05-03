@@ -32,20 +32,20 @@ export default function Welcome() {
 
                    
                         <section className="lg:w-1/2 flex flex-col gap-6">
-                            <article className="border p-5 rounded-md" style={{ backgroundColor: colorFondoClaro, color: colorPrimario, borderColor: colorPrimario }}>
+                            <article className="border p-5 rounded-md shadow-md" style={{ backgroundColor:'white', color: colorPrimario}}>
                                 <h3 className="text-lg font-semibold mb-3">Entendiendo el Panorama: Especulación vs. Información</h3>
                                 <p className="text-sm">• La clave reside en la intención y la acción detrás de cada concepto. Aquí te lo explicamos detalladamente:</p>
                             
                             </article>
-                            <article className="border p-5 rounded-md" style={{ backgroundColor: colorFondoClaro, color: colorPrimario, borderColor: colorPrimario }}>
+                            <article className="border p-5 rounded-md shadow-md" style={{ backgroundColor: 'white', color: colorPrimario }}>
                                 <h3 className="text-lg font-semibold mb-3">Desglosando las Variables Económicas Clave</h3>
                                 <p className="text-sm">• Descubre cómo las principales variables económicas impactan tu día a día y tus decisiones.</p>
                                 <img src="https://via.placeholder.com/150" alt="Variables Económicas" className="mt-4 rounded-md" />
                             </article>
-                            <article className="border p-5 rounded-md" style={{ backgroundColor: colorFondoClaro, color: colorPrimario, borderColor: colorPrimario }}>
+                            <article className="border p-5 rounded-md shadow-md" style={{ backgroundColor:'white', color: colorPrimario }}>
                                 <h3 className="text-lg font-semibold mb-3">Mantente Informado: Noticias Económicas Relevantes</h3>
                                 <p className="text-sm">• Accede a las noticias económicas más importantes de los principales medios y publicaciones.</p>
-                                <a href="#noticias" className="text-blue-500 hover:underline">Ver Noticias</a>
+                                <a href="/news" className="text-blue-500 hover:underline">Ver Noticias</a>
                             </article>
                         </section>
 

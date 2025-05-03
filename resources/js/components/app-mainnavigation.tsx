@@ -7,7 +7,8 @@ interface AppMainNavigationProps {
 }
 
 function AppMainNavigation({ colorPrimario }: AppMainNavigationProps) {
-    const { url } = usePage().props;
+    const { url } = usePage();
+    const isActive = (routePath: string) => url === routePath;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = () => {
@@ -26,7 +27,7 @@ function AppMainNavigation({ colorPrimario }: AppMainNavigationProps) {
                         <li>
                             <Link
                                 href="/"
-                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${url === '/' ? 'underline' : ''}`}
+                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${isActive(route('home')) ? 'underline' : ''}`}
                                 style={{ color: 'white' }}
                             >
                                 INICIO
@@ -35,7 +36,7 @@ function AppMainNavigation({ colorPrimario }: AppMainNavigationProps) {
                         <li>
                             <Link
                                 href="/about"
-                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${url === '/about' ? 'underline' : ''}`}
+                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${isActive(route('about')) ? 'underline' : ''}`}
                                 style={{ color: 'white' }}
                             >
                                 SOBRE NOSOTROS
@@ -44,7 +45,7 @@ function AppMainNavigation({ colorPrimario }: AppMainNavigationProps) {
                         <li>
                             <Link
                                 href="/work"
-                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${url === '/work' ? 'underline' : ''}`}
+                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${isActive(route('work')) ? 'underline' : ''}`}
                                 style={{ color: 'white' }}
                             >
                                 TRABAJA CON NOSOTROS
@@ -53,7 +54,7 @@ function AppMainNavigation({ colorPrimario }: AppMainNavigationProps) {
                         <li>
                             <Link
                                 href="/contact"
-                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${url === '/contact' ? 'underline' : ''}`}
+                                className={`text-sm font-medium hover:text-opacity-80 transition-colors ${isActive(route('contact')) ? 'underline' : ''}`}
                                 style={{ color: 'white' }}
                             >
                                 CONTACTO
