@@ -2,15 +2,17 @@ import MainLayout from '@/layouts/main-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { WelcomeModal } from "@/components/modals/welcomeModal";
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
     const [bcvInfo, setBcvInfo] = useState('');
     const [binanceInfo, setBinanceInfo] = useState('');
-
+    
     const colorPrimario = '#001276'; // Azul Oscuro
     const colorFondoClaro = '#E8EBF3'; // Una tonalidad muy clara del azul oscuro
-
+    const [isModalOpen, setIsModalOpen] = useState(true);
+    
     useEffect(() => {
         const fetchExchangeRates = async () => {
             const bcvData = { compra: 6.86, venta: 6.96 };
@@ -55,7 +57,11 @@ export default function Welcome() {
                         </aside>
 
                 <div className="hidden h-14.5 lg:block">
-
+                
+                <WelcomeModal 
+                    isOpen={isModalOpen} 
+                    onClose={() => setIsModalOpen(false)} 
+                />
 
                 </div>    
                 </MainLayout>                        
