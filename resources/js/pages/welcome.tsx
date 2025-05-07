@@ -42,7 +42,7 @@ export default function Welcome() {
                             <article className="border p-5 rounded-md shadow-md" style={{ backgroundColor: 'white', color: colorPrimario }}>
                                 <h3 className="text-lg font-semibold mb-3">Desglosando las Variables Económicas Clave</h3>
                                 <p className="text-sm">• Descubre cómo las principales variables económicas impactan tu día a día y tus decisiones.</p>
-                                <img src="https://via.placeholder.com/150" alt="Variables Económicas" className="mt-4 rounded-md" />
+                                <a href="/economicVariables" className="text-blue-500 hover:underline">Variables Economicas</a>
                             </article>
                             <article className="border p-5 rounded-md shadow-md" style={{ backgroundColor:'white', color: colorPrimario }}>
                                 <h3 className="text-lg font-semibold mb-3">Mantente Informado: Noticias Económicas Relevantes</h3>
