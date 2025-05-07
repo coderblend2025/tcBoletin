@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState, useEffect } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
+import { RegisterModal } from "@/components/modals/registerModal";
 
 type RegisterForm = {
     name: string;
@@ -17,6 +18,17 @@ type RegisterForm = {
 };
 
 export default function Register() {
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        setShowModal(true);
+    }, []);
+    
+    const handleContinue = () => {
+        // Lógica cuando se hace clic en CONTINUAR
+        setShowModal(false);
+    };
+
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
         name: '',
         email: '',
@@ -118,6 +130,11 @@ export default function Register() {
                 </TextLink>
             </div>
         </form>
+        <RegisterModal 
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onContinue={handleContinue}
+            />
     </AuthLayout>
     );
 }
