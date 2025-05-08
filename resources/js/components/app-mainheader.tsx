@@ -12,8 +12,8 @@ function AppMainHeader({ auth, colorPrimario }: MainHeaderProps) {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <nav className="flex h-16 items-center justify-between">
                     <div className="flex items-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full text-white font-bold text-lg" style={{ backgroundColor: colorPrimario }}>
-                            TCB
+                        <div className="flex h-15 w-15 items-center justify-center rounded-full">
+                            <img src="/pictures/logo.png" alt="Logo" className="h-full w-full object-contain" />
                         </div>
                     </div>
                     <div className="flex items-center gap-4">

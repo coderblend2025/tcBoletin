@@ -125,7 +125,7 @@ export default function Register() {
                                 <InputError message={errors.password_confirmation} />
                             </div>
 
-                            <Button type="submit" className="mt-2 w-full" disabled={processing}>
+                            <Button style={{ backgroundColor: '#03CF48' }} type="submit" className="mt-2 w-full" disabled={processing}>
                                 Continuar
                             </Button>
                         </div>
@@ -194,10 +194,10 @@ export default function Register() {
                             <div className="text-muted-foreground text-center text-sm">USD 7,99 al mes - Premium</div>
 
                             <div className="mt-4 flex justify-between">
-                                <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
+                                <Button style={{ backgroundColor: '#03CF48' }} type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
                                     Volver
                                 </Button>
-                                <Button type="submit" disabled={processing}>
+                                <Button style={{ backgroundColor: '#03CF48' }} type="submit" disabled={processing}>
                                     {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                                     Crear cuenta
                                 </Button>

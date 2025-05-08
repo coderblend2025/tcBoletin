@@ -7,7 +7,7 @@ interface AppInfoBarProps {
 
 function AppInfoBar({ bcvInfo, binanceInfo, colorPrimario }: AppInfoBarProps) {
     return (
-        <div className="w-full text-sm text-white py-1 text-center" style={{ backgroundColor: colorPrimario }}>
+        <div style={{ backgroundColor: '#03CF48' }} className="w-full text-sm text-white py-1 text-center" >
             <div className="whitespace-nowrap">
                 {bcvInfo} - {binanceInfo}
             </div>

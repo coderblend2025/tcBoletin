@@ -2,6 +2,7 @@ import MainLayout from '@/layouts/main-layout';
 import { type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 export default function AboutUs() {
     const { auth } = usePage<SharedData>().props;
@@ -24,8 +25,18 @@ export default function AboutUs() {
         <MainLayout title="TC Boletín - Acerca de Nosotros" auth={auth} bcvInfo={bcvInfo} binanceInfo={binanceInfo}>
             <Head title="Acerca de Nosotros" />
 
-            <section className="container">
-                <div className="bg-white rounded-2xl shadow-md p-8" >
+            <motion.section 
+                className="container"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+            >
+                <motion.div 
+                    className="bg-white rounded-2xl shadow-md p-8"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
                     <h1 className="text-3xl font-extrabold text-blue-900 mb-6">¿Quiénes Somos?</h1>
 
                     <p className="text-gray-700 mb-4">
@@ -40,7 +51,13 @@ export default function AboutUs() {
                         Sabemos que en tiempos de incertidumbre económica, la información es poder. Por eso, TC Boletín se compromete a mantenerte informado con noticias relevantes, análisis de mercado, y tasas de cambio verificadas.
                     </p>
 
-                    <div className="mt-8 border-l-4 border-blue-700 p-4 rounded-md"  style={{ backgroundColor: '#EBFFF2' }}>
+                    <motion.div 
+                        className="mt-8 border-l-4 border-blue-700 p-4 rounded-md"  
+                        style={{ backgroundColor: '#EBFFF2' }}
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
                         <h2 className="text-xl font-bold text-blue-900 mb-2">¿Qué ofrecemos?</h2>
                         <ul className="list-disc list-inside text-gray-700">
                             <li>Tasas oficiales de cambio (BCB)</li>
@@ -49,13 +66,13 @@ export default function AboutUs() {
                             <li>Diseño accesible desde dispositivos móviles</li>
                             <li>Una experiencia rápida, segura y sin publicidad invasiva</li>
                         </ul>
-                    </div>
+                    </motion.div>
 
                     <p className="mt-8 text-gray-700">
                         Gracias por confiar en nosotros. Seguiremos trabajando para ser tu aliado financiero digital en Bolivia.
                     </p>
-                </div>
-            </section>
+                </motion.div>
+            </motion.section>
         </MainLayout>
     );
 }
