@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -34,7 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/services', fn () => Inertia::render('Services/Index'))->name('services.index');
         Route::get('/subscriptions', fn () => Inertia::render('Subscriptions/Index'))->name('subscriptions.index');
-        Route::get('/users', fn () => Inertia::render('Users/Index'))->name('users.index');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/traders', fn () => Inertia::render('Traders/Index'))->name('traders.index');
     });
 
