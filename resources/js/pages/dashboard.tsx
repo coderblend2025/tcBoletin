@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Users, DollarSign, BarChart3 } from 'lucide-react'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -135,22 +136,114 @@ export default function Dashboard() {
 
             <div className="flex h-[calc(100vh-4rem)] flex-1 flex-col gap-4">
                 {isAdmin ? (
-                    <>
-                        <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                            <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                                <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                            </div>
-                            <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                                <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                            </div>
-                            <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                                <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                            </div>
-                        </div>
-                        <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                            <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                        </div>
-                    </>
+                     <>
+                  <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+  {/* Usuarios Registrados */}
+  <div className="relative aspect-video rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md flex items-center justify-center">
+    <div className="text-center p-6 space-y-2">
+      <Users className="mx-auto h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Usuarios Registrados</h3>
+      <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">1,234</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">Nuevos esta semana: 56</p>
+    </div>
+  </div>
+
+  {/* Vendedores de Dólares */}
+  <div className="relative aspect-video rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md flex items-center justify-center">
+    <div className="text-center p-6 space-y-2">
+      <DollarSign className="mx-auto h-8 w-8 text-green-600 dark:text-green-400" />
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Vendedores de Dólares</h3>
+      <p className="text-3xl font-bold text-green-600 dark:text-green-400">567</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">Activos hoy: 450</p>
+    </div>
+  </div>
+
+  {/* Ingresos a la Página */}
+  <div className="relative aspect-video rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md flex items-center justify-center">
+    <div className="text-center p-6 space-y-2">
+      <BarChart3 className="mx-auto h-8 w-8 text-blue-600 dark:text-blue-400" />
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Ingresos a la Página</h3>
+      <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">8,910</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">Visitas únicas hoy: 1,289</p>
+    </div>
+  </div>
+</div>
+<div className="mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md p-6">
+  <h3 className="text-center text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+    Gráfica del Tipo de Cambio del Dólar
+  </h3>
+  <canvas id="exchangeRateChart" className="w-full h-64"></canvas>
+</div>
+
+                     <script>
+                     {`
+                        document.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('exchangeRateChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(0, 18, 118, 0.5)');
+    gradient.addColorStop(1, 'rgba(0, 18, 118, 0.05)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
+            datasets: [{
+                label: 'Tipo de Cambio (Bs/USD)',
+                data: [6.96, 6.95, 6.97, 6.94, 6.96],
+                borderColor: '#001276',
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#001276',
+                pointBorderColor: '#fff',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    backgroundColor: '#001276',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Meses',
+                        color: '#333',
+                        font: { weight: 'bold' }
+                    },
+                    ticks: {
+                        color: '#555'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Bolivianos (Bs)',
+                        color: '#333',
+                        font: { weight: 'bold' }
+                    },
+                    ticks: {
+                        color: '#555'
+                    },
+                    beginAtZero: false,
+                },
+            },
+        },
+    });
+});
+
+                     `}
+                     </script>
+                     </>
                 ) : (
                     <div className="relative h-full w-full">
                         {/* Map Container */}

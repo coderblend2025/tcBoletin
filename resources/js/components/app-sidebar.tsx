@@ -36,7 +36,12 @@ const getNavItemsByRole = (roles: string[]) => {
                 icon: Users,
             },
             {
-                title: 'Librecambistas',
+                title: 'Pagos',
+                href: '/users',
+                icon: Users,
+            },
+            {
+                title: 'Punto de Cambio',
                 href: '/traders',
                 icon: Briefcase,
             }
