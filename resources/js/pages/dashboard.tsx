@@ -127,7 +127,7 @@ export default function Dashboard() {
             <Head title="Dashboard">
                 {!isAdmin && (
                     <script 
-                        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBF8F0YnhknJa_cvyMmaJvRVTqPS-somdk&libraries=places&callback=initMap"
+                        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBT0JHPi2LOwQYONtCSJGt4zH_WqJsgJD0&libraries=places&callback=initMap"
                         async
                         defer
                     />

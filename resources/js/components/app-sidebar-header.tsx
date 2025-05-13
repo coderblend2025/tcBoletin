@@ -3,10 +3,10 @@ import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     return (
-        <header className="flex h-6 shrink-0 items-center gap-2 px-4">
-            <div className="flex items-center gap-2">
-                <Breadcrumbs breadcrumbs={breadcrumbs} />
-            </div>
-        </header>
+        <header style={{ backgroundColor: '#03CF48' }}  className="max-w flex h-10 items-center gap-4 px-6 shadow-md">
+        <div className="flex items-center gap-4">
+        <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </div>
+       </header>
     );
 }
