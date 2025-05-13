@@ -1,7 +1,8 @@
 import MainLayout from '@/layouts/main-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 export default function Contact() {
     const { auth } = usePage<SharedData>().props;
@@ -44,16 +45,31 @@ export default function Contact() {
         <MainLayout title="Contacto" auth={auth} bcvInfo={bcvInfo} binanceInfo={binanceInfo}>
         <Head title="Contacto" />
     
-        <section className="container">
-            <div className="bg-white rounded-2xl shadow-md p-8">
+        <motion.section 
+            className="container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <motion.div 
+                className="bg-white rounded-2xl shadow-md p-8"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
                 <h1 className="text-3xl font-extrabold text-blue-900 mb-4 text-center">Contáctanos</h1>
                 <p className="text-gray-700 text-center mb-10">
                     ¿Tienes preguntas, comentarios o sugerencias? ¡Estamos aquí para ayudarte! Completa el formulario o utiliza nuestra información de contacto.
                 </p>
     
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Información de Contacto */}
-                    <div className="rounded-xl p-6" style={{ backgroundColor: '#EBFFF2' }}>
+                    <motion.div 
+                        className="rounded-xl p-6" 
+                        style={{ backgroundColor: '#EBFFF2' }}
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
                         <h2 className="text-2xl font-bold text-blue-900 mb-4">Nuestra Información</h2>
                         <ul className="text-gray-700 space-y-4">
                             <li>
@@ -69,10 +85,15 @@ export default function Contact() {
                                 +591 XXXXXXXXX
                             </li>
                         </ul>
-                    </div>
+                    </motion.div>
     
-                    {/* Formulario de Contacto */}
-                    <form onSubmit={submit} className="bg-blue-900 text-white rounded-xl p-6 shadow-lg">
+                    <motion.form 
+                        onSubmit={submit} 
+                        className="bg-blue-900 text-white rounded-xl p-6 shadow-lg"
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
                         <h2 className="text-xl font-semibold mb-6 text-center">Envíanos un Mensaje</h2>
     
                         {[
@@ -116,10 +137,10 @@ export default function Contact() {
                                 {processing ? 'Enviando...' : 'Enviar Mensaje'}
                             </button>
                         </div>
-                    </form>
+                    </motion.form>
                 </div>
-            </div>
-        </section>
+            </motion.div>
+        </motion.section>
     </MainLayout>
     
     );

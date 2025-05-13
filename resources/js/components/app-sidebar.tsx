@@ -6,6 +6,8 @@ import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, Briefcase, Home, Menu, ShoppingBag, Users, X } from 'lucide-react';
 import { useState } from 'react';
 
+const colorPrimario = '#001276';
+
 const getNavItemsByRole = (roles: string[]) => {
     const items: NavItem[] = [
         {
@@ -34,7 +36,12 @@ const getNavItemsByRole = (roles: string[]) => {
                 icon: Users,
             },
             {
-                title: 'Librecambistas',
+                title: 'Pagos',
+                href: '/users',
+                icon: Users,
+            },
+            {
+                title: 'Punto de Cambio',
                 href: '/traders',
                 icon: Briefcase,
             }
@@ -68,13 +75,13 @@ export function AppSidebar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
-        <nav className="w-full bg-sidebar border-b border-sidebar-border/70">
+        <nav    style={{ backgroundColor: colorPrimario }} className="w-full bg-sidebar border-b border-sidebar-border/70">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link href="/dashboard" prefetch className="flex items-center">
-                            <span className="text-xl font-bold text-sidebar-accent-foreground">TC BOLETIN</span>
+                            <img src="/pictures/logo.png" alt="TC Boletín Logo" className="h-12 w-auto" />
                         </Link>
                     </div>
 
@@ -82,7 +89,7 @@ export function AppSidebar() {
                     <div className="md:hidden">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         >
                             <span className="sr-only">Open main menu</span>
                             {isMobileMenuOpen ? (
@@ -100,7 +107,7 @@ export function AppSidebar() {
                                 key={item.title} 
                                 href={item.href} 
                                 prefetch 
-                                className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                                className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                             >
                                 {item.icon && <item.icon className="h-4 w-4 mr-2" />}
                                 {item.title}
@@ -123,7 +130,7 @@ export function AppSidebar() {
                             key={item.title}
                             href={item.href}
                             prefetch
-                            className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                            className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                         >
                             {item.icon && <item.icon className="h-4 w-4 mr-2" />}
                             {item.title}

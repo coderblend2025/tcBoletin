@@ -8,15 +8,15 @@ export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[]
         <>
             {breadcrumbs.length > 0 && (
                 <Breadcrumb>
-                    <BreadcrumbList className="text-xs font-light">
+                    <BreadcrumbList className="text-xs font-light ">
                         {breadcrumbs.map((item, index) => {
                             const isLast = index === breadcrumbs.length - 1;
                             return (
                                 <Fragment key={index}>
                                     <BreadcrumbItem>
                                         {isLast ? (
-                                            <BreadcrumbPage className="font-medium">{item.title}</BreadcrumbPage>
-                                        ) : (
+                                            <BreadcrumbPage style={{ fontSize: '13px' }} className="font-md text-white">Seccion/{item.title}</BreadcrumbPage>
+                                          ) : (
                                             <BreadcrumbLink asChild className="text-muted-foreground hover:text-foreground">
                                                 <Link href={item.href}>{item.title}</Link>
                                             </BreadcrumbLink>

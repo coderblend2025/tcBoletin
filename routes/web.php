@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\TraderController;
+//use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -23,15 +28,20 @@ Route::get('/news', function () {
     return Inertia::render('news');
 })->name('news');
 
+Route::get('/economicVariables', function () {
+    return Inertia::render('economicVariables');
+})->name('economicVariables');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
     
     // Rutas para administradores
     Route::middleware(['role:admin'])->group(function () {
-        Route::get('/services', fn () => Inertia::render('Services/Index'))->name('services.index');
-        Route::get('/subscriptions', fn () => Inertia::render('Subscriptions/Index'))->name('subscriptions.index');
-        Route::get('/users', fn () => Inertia::render('Users/Index'))->name('users.index');
-        Route::get('/traders', fn () => Inertia::render('Traders/Index'))->name('traders.index');
+        Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+        Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
+      //  Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.admin');
     });
 
     // Rutas para clientes

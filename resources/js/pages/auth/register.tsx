@@ -135,7 +135,7 @@ export default function Register() {
                                 <InputError message={errors.password_confirmation} />
                             </div>
 
-                            <Button type="submit" className="mt-2 w-full" disabled={processing}>
+                            <Button style={{ backgroundColor: '#03CF48' }} type="submit" className="mt-2 w-full" disabled={processing}>
                                 Continuar
                             </Button>
                         </div>
@@ -217,6 +217,7 @@ export default function Register() {
                                     Al hacer clic en el botón <strong>«Iniciar membresía»</strong>, aceptas nuestros <span className="underline">Términos de uso</span> y nuestra <span className="underline">Declaración de privacidad</span>, y declaras que tienes más de 18 años. Asimismo, entiendes que Netflix continuará tu membresía a menos que la canceles, te facturará el cargo mensual (actualmente de USD 7,99 + impuestos aplicables) y puedes cancelarla en cualquier momento desde tu cuenta.
                                 </p>
 
+<<<<<<< HEAD
                                 <div className="mt-4 flex justify-between">
                                     <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
                                         Volver
@@ -226,6 +227,16 @@ export default function Register() {
                                         Crear cuenta / Iniciar Membresía
                                     </Button>
                                 </div>
+=======
+                            <div className="mt-4 flex justify-between">
+                                <Button style={{ backgroundColor: '#03CF48' }} type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
+                                    Volver
+                                </Button>
+                                <Button style={{ backgroundColor: '#03CF48' }} type="submit" disabled={processing}>
+                                    {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                    Crear cuenta
+                                </Button>
+>>>>>>> 54e035a7cf8fc6e00dc13dd7ed2fc1d1a3652b29
                             </div>
                         </div>
                     </>
