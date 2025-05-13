@@ -32,6 +32,11 @@ Route::get('/economicVariables', function () {
     return Inertia::render('economicVariables');
 })->name('economicVariables');
 
+Route::get('/infoSpeculation', function () {
+    return Inertia::render('infoSpeculation');
+})->name('infoSpeculation');
+
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
     
