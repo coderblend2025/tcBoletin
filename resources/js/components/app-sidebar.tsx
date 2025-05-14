@@ -3,7 +3,7 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Briefcase, Home, Menu, ShoppingBag, Users, X } from 'lucide-react';
+import { BookOpen, BrickWall, Briefcase, BriefcaseBusiness, Home, Menu, ShoppingBag, Users, X } from 'lucide-react';
 import { useState } from 'react';
 
 const colorPrimario = '#001276';
@@ -44,6 +44,11 @@ const getNavItemsByRole = (roles: string[]) => {
                 title: 'Punto de Cambio',
                 href: '/traders',
                 icon: Briefcase,
+            },
+            {
+                title: 'Planes',
+                href: '/plans',
+                icon: BriefcaseBusiness,
             }
         );
     }
@@ -74,6 +79,9 @@ export function AppSidebar() {
     const mainNavItems = getNavItemsByRole(auth.user?.roles || []);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    console.log('Usuario actual:', auth.user);
+    console.log('Roles del usuario:', auth.user?.roles);
+    
     return (
         <nav    style={{ backgroundColor: colorPrimario }} className="w-full bg-sidebar border-b border-sidebar-border/70">
             <div className="max-w-7xl mx-auto px-4">

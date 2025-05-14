@@ -6,6 +6,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TraderController;
+use App\Http\Controllers\PlanController;
 //use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
@@ -41,6 +42,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
+        Route::resource('plans', PlanController::class)->except(['show']);
+
       //  Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.admin');
     });
 
