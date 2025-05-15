@@ -73,29 +73,14 @@ export default function SearchControls({
       </div>
 
       <button
-        onClick={handleNuevoUsuarioClick}
-        className="px-4 py-2 bg-[#001276] text-white rounded-md hover:bg-[#00471E] focus:outline-none focus:ring-2 focus:ring-[#005A26] focus:ring-offset-1 text-sm font-semibold flex items-center gap-2 cursor-pointer"
+          onClick={onActionButtonClick}  // Esto ya ejecutará router.visit('/plans/create')
+          className="px-4 py-2 bg-[#001276] text-white rounded-md hover:bg-[#00471E] text-sm font-semibold flex items-center gap-2 cursor-pointer"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm7 14a1 1 0 110-2 1 1 0 010 2zm1-4H8a1 1 0 010-2h5a1 1 0 010 2z" />
-        </svg>
-        {actionButtonName}
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm7 14a1 1 0 110-2 1 1 0 010 2zm1-4H8a1 1 0 010-2h5a1 1 0 010 2z" />
+          </svg>
+          {actionButtonName}
       </button>
-
-      {isPopupOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-1/3">
-            <h2 className="text-lg font-semibold mb-4">Nuevo Usuario</h2>
-            <p>Formulario o contenido del popup aquí.</p>
-            <button
-              onClick={closePopup}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
