@@ -1,11 +1,11 @@
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from '@inertiajs/react';
 import DeletePlan from './DeletePlansModal';
 import EditModal from './EditModal';
 import DetailsModal from './DetailsModal';
-import { FiEdit, FiTrash2, FiEye,} from "react-icons/fi";
+import { FiEdit, FiTrash2, FiEye, FiArrowUp, FiArrowDown } from "react-icons/fi";
 import SearchControls from '@/components/SearchControls';
 
 interface Plan {
@@ -29,6 +29,7 @@ interface PageProps {
 }
 
 export default function PlansIndex({ plans, can }: PageProps) {
+    
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
@@ -37,16 +38,75 @@ export default function PlansIndex({ plans, can }: PageProps) {
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [plansPerPage, setPlansPerPage] = useState<5 | 10 | 20 | 50>(10);
-    const [filteredPlans, setFilteredPlans] = useState<Plan[]>(plans);
+    
+    // Nuevo estado para el ordenamiento
+    const [sortConfig, setSortConfig] = useState<{
+        key: keyof Plan;
+        direction: 'asc' | 'desc';
+    } | null>(null);
 
-    useEffect(() => {
-        const filtered: Plan[] = plans.filter(plan => 
-            plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (plan.description && plan.description.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-        setFilteredPlans(filtered);
-    }, [searchTerm, plans]);
+    // Función para ordenar los planes
+    const sortedPlans = useMemo(() => {
+        const sortablePlans = [...plans];
+        
+        // Aplicar filtrado primero
+        const filtered = searchTerm 
+            ? sortablePlans.filter(plan => 
+                plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (plan.description && plan.description.toLowerCase().includes(searchTerm.toLowerCase())))
+            : sortablePlans;
 
+        // Aplicar ordenamiento si hay configuración
+        if (sortConfig) {
+            filtered.sort((a, b) => {
+                // Ordenamiento numérico para precio y duración
+                if (sortConfig.key === 'price' || sortConfig.key === 'duration_in_days') {
+                    return sortConfig.direction === 'asc' 
+                        ? a[sortConfig.key] - b[sortConfig.key]
+                        : b[sortConfig.key] - a[sortConfig.key];
+                }
+                
+                // Ordenamiento alfabético para otros campos
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        
+        return filtered;
+    }, [plans, searchTerm, sortConfig]);
+
+    // Función para manejar el ordenamiento
+    const requestSort = (key: keyof Plan) => {
+        // Si ya está ordenado por esta columna, alternar dirección
+        if (sortConfig && sortConfig.key === key) {
+            setSortConfig({
+                key,
+                direction: sortConfig.direction === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            // Primera vez que se ordena esta columna (ascendente por defecto)
+            setSortConfig({ key, direction: 'asc' });
+        }
+    };
+
+    // Función para obtener el icono correcto
+    const getSortIcon = (key: keyof Plan) => {
+        // Si no hay ordenamiento o es otra columna, mostrar ↑ (por defecto)
+        if (!sortConfig || sortConfig.key !== key) {
+            return <FiArrowUp className="ml-1 text-gray-400" />;
+        }
+        // Mostrar ↓ si está ordenado descendente
+        return sortConfig.direction === 'desc' 
+            ? <FiArrowDown className="ml-1 text-gray-700" /> 
+            : <FiArrowUp className="ml-1 text-gray-700" />;
+    };
+
+    // Resto de tus handlers...
     const handleDeleteClick = (id: number) => {
         setSelectedPlanId(id);
         setDeleteModalOpen(true);
@@ -70,13 +130,11 @@ export default function PlansIndex({ plans, can }: PageProps) {
                     <SearchControls 
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
-                        usersPerPage={plansPerPage}
-                        onUsersPerPageChange={setPlansPerPage}
                         onActionButtonClick={() => router.visit('/plans/create')}
                         actionButtonName="Nuevo Plan"
                     />
                     <PlansTable
-                        plans={filteredPlans}
+                        plans={sortedPlans}
                         canEdit={can.edit}
                         canDelete={can.delete}
                         openMenuId={openMenuId}
@@ -84,10 +142,13 @@ export default function PlansIndex({ plans, can }: PageProps) {
                         onDelete={handleDeleteClick}
                         onEdit={handleEditClick}
                         onDetails={handleDetailsClick}
+                        requestSort={requestSort}
+                        getSortIcon={getSortIcon}
+                        sortConfig={sortConfig}
                     />
                 </div>
             </div>
-            {selectedPlanId && (
+             {selectedPlanId && (
                 <DeletePlan
                     planId={selectedPlanId}
                     isOpen={deleteModalOpen}
@@ -121,6 +182,9 @@ function PlansTable({
     onDelete,
     onEdit,
     onDetails,
+    requestSort,
+    getSortIcon,
+    sortConfig,
 }: {
     plans: Plan[];
     canEdit: boolean;
@@ -130,6 +194,9 @@ function PlansTable({
     onDelete: (id: number) => void;
     onEdit: (plan: Plan) => void;
     onDetails: (plan: Plan) => void;
+    requestSort: (key: keyof Plan) => void;
+    getSortIcon: (key: keyof Plan) => React.ReactNode;
+    sortConfig: { key: keyof Plan; direction: 'asc' | 'desc' } | null;
 }) {
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -151,12 +218,46 @@ function PlansTable({
             <table className="min-w-full divide-y divide-gray-200 rounded-md shadow-sm">
                 <thead className="bg-gray-50">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duración (días)</th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('name')}
+                        >
+                            <div className="flex items-center">
+                                Nombre
+                                {getSortIcon('name')}
+                            </div>
+                        </th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('description')}
+                        >
+                            <div className="flex items-center">
+                                Descripción
+                                {getSortIcon('description')}
+                            </div>
+                        </th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('price')}
+                        >
+                            <div className="flex items-center">
+                                Precio
+                                {getSortIcon('price')}
+                            </div>
+                        </th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('duration_in_days')}
+                        >
+                            <div className="flex items-center">
+                                Duración (días)
+                                {getSortIcon('duration_in_days')}
+                            </div>
+                        </th>
                         {(canEdit || canDelete) && (
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones
+                            </th>
                         )}
                     </tr>
                 </thead>
