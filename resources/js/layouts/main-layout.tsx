@@ -28,8 +28,7 @@ export default function MainLayout({ title, bcvInfo, binanceInfo, auth, children
                 <AppMainHeader auth={auth} colorPrimario={colorPrimario} />
                 <AppMainNavigation colorPrimario={colorPrimario} />
                 <main
-                    className="max-w mx-auto flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:px-8"
-                    style={{ backgroundColor: '#1C1C1D' }}
+                    className="max-w mx-auto flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:px-8 bg-[#001276] dark:bg-[#1a1a1a]"
                 >
                     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:px-8">{children}</div>
                 </main>

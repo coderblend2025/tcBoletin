@@ -1,8 +1,10 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
+import { FaCcVisa, FaCcMastercard, FaCcAmex } from 'react-icons/fa';
 
 import InputError from '@/components/input-error';
+import { RegisterModal } from '@/components/modals/registerModal';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,9 +23,10 @@ type RegisterForm = {
 };
 
 export default function Register() {
+    const [showModal, setShowModal] = useState(true);
     const [step, setStep] = useState(1);
 
-    const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
+    const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
         email: '',
         password: '',
@@ -34,8 +37,6 @@ export default function Register() {
         card_name: '',
     });
 
-    const handleContinue = () => setStep(2);
-
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('register'), {
@@ -43,9 +44,18 @@ export default function Register() {
         });
     };
 
+    const handleContinue = () => {
+        setShowModal(false);
+        setStep(2);
+    };
+
     return (
-        <AuthLayout title="Crear una cuenta" description="Ingresa tus datos para continuar">
+        <AuthLayout
+            title={step === 1 ? 'Crear una cuenta' : 'Configura tu tarjeta de crédito o débito'}
+            description={step === 1 ? 'Ingresa tus datos para continuar' : 'Completa los datos de tu tarjeta para continuar'}
+        >
             <Head title="Registro" />
+
             <form
                 className="flex flex-col gap-6"
                 onSubmit={
@@ -137,62 +147,87 @@ export default function Register() {
                 ) : (
                     <>
                         <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="card_number">Número de tarjeta</Label>
-                                <Input
-                                    id="card_number"
-                                    type="text"
-                                    required
-                                    placeholder="•••• •••• •••• ••••"
-                                    value={data.card_number}
-                                    onChange={(e) => setData('card_number', e.target.value)}
-                                    className="p-3 text-gray-800"
-                                />
+
+                            <div className="flex items-center space-x-2 mb-4">
+                                <FaCcVisa className="text-3xl text-blue-600" />
+                                <FaCcMastercard className="text-3xl text-red-600" />
+                                <FaCcAmex className="text-3xl text-indigo-600" />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid gap-6">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="card_expiry">Fecha de vencimiento</Label>
+                                    <Label htmlFor="card_number">Número de tarjeta</Label>
                                     <Input
-                                        id="card_expiry"
+                                        id="card_number"
                                         type="text"
                                         required
-                                        placeholder="MM/AA"
-                                        value={data.card_expiry}
-                                        onChange={(e) => setData('card_expiry', e.target.value)}
+                                        placeholder="•••• •••• •••• ••••"
+                                        value={data.card_number}
+                                        onChange={(e) => setData('card_number', e.target.value)}
                                         className="p-3 text-gray-800"
                                     />
                                 </div>
 
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="card_expiry">Fecha de vencimiento</Label>
+                                        <Input
+                                            id="card_expiry"
+                                            type="text"
+                                            required
+                                            placeholder="MM/AA"
+                                            value={data.card_expiry}
+                                            onChange={(e) => setData('card_expiry', e.target.value)}
+                                            className="p-3 text-gray-800"
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="card_cvv">CVV</Label>
+                                        <Input
+                                            id="card_cvv"
+                                            type="text"
+                                            required
+                                            placeholder="123"
+                                            value={data.card_cvv}
+                                            onChange={(e) => setData('card_cvv', e.target.value)}
+                                            className="p-3 text-gray-800"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="grid gap-2">
-                                    <Label htmlFor="card_cvv">CVV</Label>
+                                    <Label htmlFor="card_name">Nombre en la tarjeta</Label>
                                     <Input
-                                        id="card_cvv"
+                                        id="card_name"
                                         type="text"
                                         required
-                                        placeholder="123"
-                                        value={data.card_cvv}
-                                        onChange={(e) => setData('card_cvv', e.target.value)}
+                                        placeholder="Nombre como aparece en la tarjeta"
+                                        value={data.card_name}
+                                        onChange={(e) => setData('card_name', e.target.value)}
                                         className="p-3 text-gray-800"
                                     />
                                 </div>
-                            </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="card_name">Nombre en la tarjeta</Label>
-                                <Input
-                                    id="card_name"
-                                    type="text"
-                                    required
-                                    placeholder="Nombre como aparece en la tarjeta"
-                                    value={data.card_name}
-                                    onChange={(e) => setData('card_name', e.target.value)}
-                                    className="p-3 text-gray-800"
-                                />
-                            </div>
+                                <div className="text-sm text-center text-gray-600">
+                                    USD 7,99 al mes - <span className="font-semibold">Premium</span>
+                                </div>
 
-                            <div className="text-muted-foreground text-center text-sm">USD 7,99 al mes - Premium</div>
+                                <p className="text-xs text-gray-500 leading-5 text-justify">
+                                    Al hacer clic en el botón <strong>«Iniciar membresía»</strong>, aceptas nuestros <span className="underline">Términos de uso</span> y nuestra <span className="underline">Declaración de privacidad</span>, y declaras que tienes más de 18 años. Asimismo, entiendes que Netflix continuará tu membresía a menos que la canceles, te facturará el cargo mensual (actualmente de USD 7,99 + impuestos aplicables) y puedes cancelarla en cualquier momento desde tu cuenta.
+                                </p>
 
+<<<<<<< HEAD
+                                <div className="mt-4 flex justify-between">
+                                    <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
+                                        Volver
+                                    </Button>
+                                    <Button type="submit" disabled={processing}>
+                                        {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                        Crear cuenta / Iniciar Membresía
+                                    </Button>
+                                </div>
+=======
                             <div className="mt-4 flex justify-between">
                                 <Button style={{ backgroundColor: '#03CF48' }} type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
                                     Volver
@@ -201,11 +236,14 @@ export default function Register() {
                                     {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                                     Crear cuenta
                                 </Button>
+>>>>>>> 54e035a7cf8fc6e00dc13dd7ed2fc1d1a3652b29
                             </div>
                         </div>
                     </>
                 )}
             </form>
+
+            <RegisterModal isOpen={showModal} onClose={() => setShowModal(false)} onContinue={handleContinue} />
         </AuthLayout>
     );
 }

@@ -40,27 +40,28 @@ export default function Welcome() {
     }, []);
 
     return (
-        <div style={{ backgroundColor: colorFondoClaro, minHeight: '100vh', padding: '20px' }}>
+        <div style={{ backgroundColor: colorFondoClaro, minHeight: '100vh'}}>
             <MainLayout title="TC Boletín" auth={auth} bcvInfo={bcvInfo} binanceInfo={binanceInfo}>
                 <div className="container mx-auto flex flex-col lg:flex-row gap-8">
 
-                    <motion.aside
-                        className="rounded-lg p-6 text-white lg:w-1/4 flex flex-col items-center justify-center"
-                        style={{ backgroundColor: colorPrimario }}
-                        initial={{ opacity: 0, x: -100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <FaUsers className="text-4xl mb-3" />
-                        <h2 className="text-xl font-semibold mb-4 text-center">Comunidad Exclusiva</h2>
-                        <p className="text-sm text-gray-200 mb-4 leading-relaxed text-center">
-                            Accede a contenido premium y análisis de expertos.
-                        </p>
-                        <Link href="#" className="inline-flex items-center bg-white text-blue-600 font-semibold py-2 px-4 rounded-md hover:bg-blue-100">
-                            Únete <FaArrowRight className="ml-2" />
-                        </Link>
-                    </motion.aside>
+              
 
+                <motion.aside
+                className="rounded-lg p-6 text-white lg:w-1/4 flex flex-col items-center justify-center shadow-lg"
+                style={{ backgroundColor: colorPrimario , boxShadow: '2px 35px 150px -1px rgba(0, 0, 0, 0.3)' }}
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                >
+                <FaUsers className="text-4xl mb-3" />
+                <h2 className="text-xl font-semibold mb-4 text-center">Comunidad Exclusiva</h2>
+                <p className="text-sm text-gray-200 mb-4 leading-relaxed text-center">
+                    Accede a contenido premium y análisis de expertos.
+                </p>
+                <Link href="#" className="inline-flex items-center bg-white text-blue-600 font-semibold py-2 px-4 rounded-md hover:bg-blue-100">
+                    Únete <FaArrowRight className="ml-2" />
+                </Link>
+                </motion.aside>
                     {/* Main Content Section */}
                     <motion.section
                         className="flex flex-col gap-8 lg:w-1/2"
@@ -70,7 +71,7 @@ export default function Welcome() {
                     >
                         {/* Feature Block 1 */}
                         <motion.article
-                            className="rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300 flex items-start gap-4"
+                            className="rounded-lg bg-white p-6 shadow hover:shadow-lg transition-shadow duration-300 flex items-start gap-4"
                             style={{ color: colorTextoPrincipal }}
                             initial={{ opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -143,7 +144,7 @@ export default function Welcome() {
 
                     <motion.aside
                         className="rounded-lg p-6 text-white lg:w-1/4 flex flex-col items-center justify-center"
-                        style={{ backgroundColor: colorPrimario }}
+                        style={{ backgroundColor: colorPrimario , boxShadow: '2px 35px 150px -1px rgba(0, 0, 0, 0.3)' }}
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5 }}

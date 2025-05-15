@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp, faTiktok, faFacebookF, faInstagram } from '@fortawesome/free-brands-svg-icons';
 
 function AppFooter() {
-    const colorPrimario = '#001276';
+    const colorPrimario = '#1C1C1D';
     const colorTextoClaro = '#E8EBF3';
 
     return (

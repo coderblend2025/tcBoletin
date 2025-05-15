@@ -7,7 +7,7 @@ interface MainHeaderProps {
 }
 
 function AppMainHeader({ auth, colorPrimario }: MainHeaderProps) {
-    const medioNegroBackground = 'bg-[#333333] dark:bg-[#1a1a1a]';
+    const medioNegroBackground = 'bg-[#001276]';
 
     return (
         <header className={`w-full shadow-sm ${medioNegroBackground}`}>
@@ -19,31 +19,40 @@ function AppMainHeader({ auth, colorPrimario }: MainHeaderProps) {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                         {auth.user ? (
+                       {auth.user ? (
+                        <Link
+                            href={route('dashboard')}
+                            className="inline-block rounded-sm border border-white px-5 py-1.5 text-sm leading-normal text-white hover:border-[#f7f7f7] dark:border-white dark:text-white dark:hover:border-[#f2f2f2]"
+                        >
+                            Administración de la Página Web
+                        </Link>
+                    ) : (
+                        <>
                             <Link
-                                href={route('dashboard')}
-                                className="inline-block rounded-sm border border-white px-5 py-1.5 text-sm leading-normal text-white hover:border-gray-200 dark:border-white dark:text-white dark:hover:border-gray-800"
+                                href={route('login')}
+                                className="inline-block rounded-sm border border-white px-5 py-1.5 text-sm leading-normal text-white hover:border-[#f7f7f7] dark:border-white dark:text-white dark:hover:border-[#f2f2f2]"
                             >
-                                Administración de la Página Web
+                                Iniciar Sesión
                             </Link>
-                        ) : (
-                            <>
-                                <Link
-                                    href={route('login')}
-                                    className="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-white hover:border-gray-200 dark:text-white dark:hover:border-gray-800"
-                                    style={{ backgroundColor: 'white', color: '#1b1b18' }}
-                                >
-                                    Iniciar Sesión
-                                </Link>
-                                <Link
-                                    href={route('register')}
-                                    className="inline-block rounded-sm border border-white px-5 py-1.5 text-sm leading-normal text-white hover:bg-white hover:text-black dark:text-white dark:border-white dark:hover:bg-white dark:hover:text-black"
-
-                                >
-                                    Registrarse
-                                </Link>
-                            </>
-                        )}
+                            <Link
+                                href={route('register')}
+                                className="inline-block rounded-sm border border-white px-5 py-1.5 text-sm leading-normal text-white hover:bg-white hover:text-[#1b1b18] dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-[#EDEDEC]"
+                                style={{ backgroundColor: 'transparent' }}
+                                onMouseOver={(e) => {
+                                    const target = e.target as HTMLButtonElement;
+                                    target.style.backgroundColor = 'white';
+                                    target.style.color = colorPrimario;
+                                }}
+                                onMouseOut={(e) => {
+                                    const target = e.target as HTMLButtonElement;
+                                    target.style.backgroundColor = 'transparent';
+                                    target.style.color = 'white';
+                                }}
+                            >
+                                Registrarse
+                            </Link>
+                        </>
+                    )}
                     </div>
                 </nav>
             </div>
