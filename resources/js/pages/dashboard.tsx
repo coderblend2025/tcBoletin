@@ -16,20 +16,20 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const sampleLocations = [
     {
-        title: "Plaza 14 de Septiembre",
+        title: 'Plaza 14 de Septiembre',
         position: { lat: -17.393836, lng: -66.156872 },
-        description: "Plaza principal de Cochabamba"
+        description: 'Plaza principal de Cochabamba',
     },
     {
-        title: "Cristo de la Concordia",
+        title: 'Cristo de la Concordia',
         position: { lat: -17.378244, lng: -66.146916 },
-        description: "Monumento religioso"
+        description: 'Monumento religioso',
     },
     {
-        title: "Universidad Mayor de San Simón",
+        title: 'Universidad Mayor de San Simón',
         position: { lat: -17.391481, lng: -66.146657 },
-        description: "Universidad pública"
-    }
+        description: 'Universidad pública',
+    },
 ];
 
 declare global {
@@ -69,7 +69,7 @@ export default function Dashboard() {
                     position: location.position,
                     map: googleMap,
                     title: location.title,
-                    animation: window.google.maps.Animation.DROP
+                    animation: window.google.maps.Animation.DROP,
                 });
 
                 const infowindow = new window.google.maps.InfoWindow({
@@ -230,7 +230,7 @@ export default function Dashboard() {
                         {isLoading && (
                             <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                                 <div className="text-center">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900 dark:border-white mb-2"></div>
+                                    <div className="mb-2 h-8 w-8 animate-spin rounded-full border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
                                     <p className="text-sm text-gray-600 dark:text-gray-300">Cargando mapa...</p>
                                 </div>
                             </div>
@@ -240,7 +240,7 @@ export default function Dashboard() {
                         <div ref={mapRef} className="h-full w-full" style={{ display: isLoading ? 'none' : 'block' }} />
 
                         {/* Floating Search Box */}
-                        <div className="absolute left-4 right-4 top-4 z-10 mx-auto max-w-2xl">
+                        <div className="absolute top-4 right-4 left-4 z-10 mx-auto max-w-2xl">
                             <div className="flex gap-2">
                                 <Input
                                     ref={searchInputRef}
@@ -264,13 +264,13 @@ export default function Dashboard() {
                         </Card>
 
                         {/* Floating Locations List */}
-                        <Card className="absolute right-4 top-20 z-10 max-h-[calc(100vh-10rem)] w-72 overflow-auto bg-white/90 p-4 backdrop-blur-sm dark:bg-gray-800/90">
+                        <Card className="absolute top-20 right-4 z-10 max-h-[calc(100vh-10rem)] w-72 overflow-auto bg-white/90 p-4 backdrop-blur-sm dark:bg-gray-800/90">
                             <h3 className="mb-4 text-sm font-semibold">Ubicaciones</h3>
                             <div className="space-y-3">
                                 {sampleLocations.map((location, index) => (
                                     <div key={index} className="space-y-1">
                                         <h4 className="font-medium">{location.title}</h4>
-                                        <p className="text-sm text-muted-foreground">{location.description}</p>
+                                        <p className="text-muted-foreground text-sm">{location.description}</p>
                                     </div>
                                 ))}
                             </div>
