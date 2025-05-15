@@ -2,18 +2,22 @@ import MainLayout from '@/layouts/main-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { WelcomeModal } from "@/components/modals/welcomeModal";
+import { WelcomeModal } from '@/components/modals/welcomeModal';
 import { motion } from 'framer-motion';
+import { FaUsers, FaInfoCircle, FaChartBar, FaNewspaper, FaArrowRight } from 'react-icons/fa'; // Import Font Awesome icons
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
     const [bcvInfo, setBcvInfo] = useState('');
     const [binanceInfo, setBinanceInfo] = useState('');
-    
+
     const colorPrimario = '#001276'; // Azul Oscuro
-    const colorFondoClaro = '#E8EBF3'; // Una tonalidad muy clara del azul oscuro
+    const colorFondoClaro = '#F4F6F8'; // A light, neutral background
+    const colorTextoPrincipal = '#374151'; // Darker, more standard gray
+    const colorTextoSecundario = '#6B7280'; // Slightly lighter secondary gray
+    const colorAccent = '#3B82F6'; // A more vibrant, standard blue for links
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
+
     useEffect(() => {
         const hasVisited = localStorage.getItem('hasVisited');
         if (!hasVisited) {
@@ -27,90 +31,143 @@ export default function Welcome() {
     useEffect(() => {
         const fetchExchangeRates = async () => {
             const bcvData = { compra: 6.86, venta: 6.96 };
-            const binanceData = { compra: 10.50, venta: 11.87 };
-            setBcvInfo(`Banco Central de Bolivia: Compra ${bcvData.compra} - Venta ${bcvData.venta}`);
-            setBinanceInfo(`Binance Bs/USDT: Compra ${binanceData.compra} - Venta ${binanceData.venta} (Actualizado a horas 08:00 a.m. - 30/11/2024)`);
+            const binanceData = { compra: 10.5, venta: 11.87 };
+            setBcvInfo(`BCV: Compra ${bcvData.compra} - Venta ${bcvData.venta}`);
+            setBinanceInfo(`Binance: Compra ${binanceData.compra} - Venta ${binanceData.venta} (Actualizado 30/11/24)`);
         };
 
         fetchExchangeRates();
     }, []);
 
     return (
-        <> <MainLayout title="TC Boletín" auth={auth} bcvInfo={bcvInfo} binanceInfo={binanceInfo}>     
-              <motion.aside 
-                  className="lg:w-1/4 p-6 rounded-md text-white" 
-                  style={{ backgroundColor: colorPrimario }}
-                  initial={{ opacity: 0, x: -100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5 }}
-              >
-                  <h2 className="text-xl font-semibold mb-3">¡ÚNETE A LA COMUNIDAD!</h2>
-                  <p className="text-sm mb-4">Recibe acceso exclusivo y contenido ilimitado de nuestros consultores expertos.</p>
-              </motion.aside>
+        <div style={{ backgroundColor: colorFondoClaro, minHeight: '100vh', padding: '20px' }}>
+            <MainLayout title="TC Boletín" auth={auth} bcvInfo={bcvInfo} binanceInfo={binanceInfo}>
+                <div className="container mx-auto flex flex-col lg:flex-row gap-8">
 
-              <motion.section 
-                  className="lg:w-1/2 flex flex-col gap-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                  <motion.article 
-                      className="border p-5 rounded-md shadow-md" 
-                      style={{ backgroundColor:'white', color: colorPrimario }}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                  >
-                      <h3 className="text-lg font-semibold mb-3">Entendiendo el Panorama: Especulación vs. Información</h3>
-                      <p className="text-sm">• La clave reside en la intención y la acción detrás de cada concepto. Aquí te lo explicamos detalladamente:</p>
-                  </motion.article>
-                  <motion.article 
-                      className="border p-5 rounded-md shadow-md" 
-                      style={{ backgroundColor: 'white', color: colorPrimario }}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
-                  >
-                      <h3 className="text-lg font-semibold mb-3">Desglosando las Variables Económicas Clave</h3>
-                      <p className="text-sm">• Descubre cómo las principales variables económicas impactan tu día a día y tus decisiones.</p>
-                      <a href="/economicVariables" className="text-blue-500 hover:underline">Variables Economicas</a>
-                  </motion.article>
-                  <motion.article 
-                      className="border p-5 rounded-md shadow-md" 
-                      style={{ backgroundColor:'white', color: colorPrimario }}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2 }}
-                  >
-                      <h3 className="text-lg font-semibold mb-3">Mantente Informado: Noticias Económicas Relevantes</h3>
-                      <p className="text-sm">• Accede a las noticias económicas más importantes de los principales medios y publicaciones.</p>
-                      <a href="/news" className="text-blue-500 hover:underline">Ver Noticias</a>
-                  </motion.article>
-              </motion.section>
+                    <motion.aside
+                        className="rounded-lg p-6 text-white lg:w-1/4 flex flex-col items-center justify-center"
+                        style={{ backgroundColor: colorPrimario }}
+                        initial={{ opacity: 0, x: -100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <FaUsers className="text-4xl mb-3" />
+                        <h2 className="text-xl font-semibold mb-4 text-center">Comunidad Exclusiva</h2>
+                        <p className="text-sm text-gray-200 mb-4 leading-relaxed text-center">
+                            Accede a contenido premium y análisis de expertos.
+                        </p>
+                        <Link href="#" className="inline-flex items-center bg-white text-blue-600 font-semibold py-2 px-4 rounded-md hover:bg-blue-100">
+                            Únete <FaArrowRight className="ml-2" />
+                        </Link>
+                    </motion.aside>
 
-              <motion.aside 
-                  className="lg:w-1/4 p-6 rounded-md text-white" 
-                  style={{ backgroundColor: colorPrimario }}
-                  initial={{ opacity: 0, x: 100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5 }}
-              >
-                  <h2 className="text-xl font-semibold mb-3">¡SÉ PARTE!</h2>
-                  <p className="text-sm mb-4">Te brindamos información de mercado actualizada y con total transparencia.</p>
-              </motion.aside>
+                    {/* Main Content Section */}
+                    <motion.section
+                        className="flex flex-col gap-8 lg:w-1/2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                        {/* Feature Block 1 */}
+                        <motion.article
+                            className="rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300 flex items-start gap-4"
+                            style={{ color: colorTextoPrincipal }}
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <FaInfoCircle className="text-2xl text-blue-500" />
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2" style={{ color: colorPrimario }}>
+                                    Especulación vs. Información
+                                </h3>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    Entiende la diferencia clave y toma decisiones informadas.
+                                </p>
+                                <Link
+                                    href="/infoSpeculation"
+                                    className="mt-2 text-blue-500 hover:underline font-semibold inline-flex items-center"
+                                >
+                                    Leer más <FaArrowRight className="ml-1 text-sm" />
+                                </Link>
+                            </div>
+                        </motion.article>
 
-              <motion.div 
-                  className="hidden h-14.5 lg:block"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                  <WelcomeModal 
-                      isOpen={isModalOpen} 
-                      onClose={() => setIsModalOpen(false)} 
-                  />
-              </motion.div>    
-          </MainLayout>                        
-      </>
-  );
+                        {/* Feature Block 2 */}
+                        <motion.article
+                            className="rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300 flex items-start gap-4"
+                            style={{ color: colorTextoPrincipal }}
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                        >
+                            <FaChartBar className="text-2xl text-green-500" />
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2" style={{ color: colorPrimario }}>
+                                    Variables Económicas Clave
+                                </h3>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    Descubre los indicadores que impactan tu economía diaria.
+                                </p>
+                                <Link
+                                    href="/economicVariables"
+                                    className="mt-2 text-blue-500 hover:underline font-semibold inline-flex items-center"
+                                >
+                                    Explorar <FaArrowRight className="ml-1 text-sm" />
+                                </Link>
+                            </div>
+                        </motion.article>
+
+                        {/* Feature Block 3 */}
+                        <motion.article
+                            className="rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300 flex items-start gap-4"
+                            style={{ color: colorTextoPrincipal }}
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                        >
+                            <FaNewspaper className="text-2xl text-indigo-500" />
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2" style={{ color: colorPrimario }}>
+                                    Noticias Económicas Relevantes
+                                </h3>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    Mantente al tanto de los acontecimientos económicos más importantes.
+                                </p>
+                                <Link href="/news" className="mt-2 text-blue-500 hover:underline font-semibold inline-flex items-center">
+                                    Ver Noticias <FaArrowRight className="ml-1 text-sm" />
+                                </Link>
+                            </div>
+                        </motion.article>
+                    </motion.section>
+
+                    <motion.aside
+                        className="rounded-lg p-6 text-white lg:w-1/4 flex flex-col items-center justify-center"
+                        style={{ backgroundColor: colorPrimario }}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <FaArrowRight className="text-4xl mb-3" />
+                        <h2 className="text-xl font-semibold mb-4 text-center">¡SÉ PARTE!</h2>
+                        <p className="text-sm text-gray-200 mb-4 leading-relaxed text-center">
+                            Información transparente y actualizada al alcance de tu mano.
+                        </p>
+                        <Link href="#" className="inline-flex items-center bg-white text-blue-600 font-semibold py-2 px-4 rounded-md hover:bg-blue-100">
+                            Explorar <FaArrowRight className="ml-2" />
+                        </Link>
+                    </motion.aside>
+
+                    <motion.div
+                        className="hidden h-14.5 lg:block"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                        <WelcomeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                    </motion.div>
+                </div>
+            </MainLayout>
+        </div>
+    );
 }

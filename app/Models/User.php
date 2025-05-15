@@ -42,4 +42,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    public function subcriptions()
+    {
+        return $this->hasMany(Subcription::class, 'id_user');
+    }
+
+
+    public function latestSubcription()
+    {
+        return $this->hasOne(Subcription::class, 'id_user')->latestOfMany();
+    }
 }

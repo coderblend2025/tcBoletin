@@ -20,7 +20,7 @@ class UserController extends Controller
         $searchTerm = $request->input('search', '');
 
         // Consulta base con eager loading de roles
-        $usersQuery = User::with('roles')
+        $usersQuery =  User::with(['roles'])
             ->when($searchTerm, function ($query, $searchTerm) {
                 return $query->where(function ($q) use ($searchTerm) {
                     $q->where('name', 'like', "%{$searchTerm}%")

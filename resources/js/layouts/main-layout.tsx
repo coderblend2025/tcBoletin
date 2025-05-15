@@ -8,9 +8,9 @@ import AppFooter from '@/components/app-footer';
 
 interface MainLayoutProps {
     title: string;
-    bcvInfo: any; // Replace 'any' with the appropriate type if known
-    binanceInfo: any; // Replace 'any' with the appropriate type if known
-    auth: any; // Replace 'any' with the appropriate type if known
+    bcvInfo: string;
+    binanceInfo: string;
+    auth: any;
     children: React.ReactNode;
 }
 
@@ -23,16 +23,17 @@ export default function MainLayout({ title, bcvInfo, binanceInfo, auth, children
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
             </Head>
-            <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] text-[#1b1b18] lg:justify-start dark:bg-[#0a0a0a]">
+            <div className="flex min-h-screen flex-col items-center bg-[#333333]  text-[#1b1b18] lg:justify-start dark:bg-[#0a0a0a]">
                 <AppInfoBar bcvInfo={bcvInfo} binanceInfo={binanceInfo} colorPrimario={colorPrimario} />
                 <AppMainHeader auth={auth} colorPrimario={colorPrimario} />
                 <AppMainNavigation colorPrimario={colorPrimario} />
-                <main className="flex flex-col lg:flex-row w-full max-w mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8" style={{ backgroundColor: '#E8EBF3' }}>
-                    <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8">
-                        {children}
-                    </div>
+                <main
+                    className="max-w mx-auto flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:px-8"
+                    style={{ backgroundColor: '#1C1C1D' }}
+                >
+                    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:px-8">{children}</div>
                 </main>
-                <AppFooter/>
+                <AppFooter />
             </div>
         </>
     );

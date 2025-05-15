@@ -7,8 +7,10 @@ interface MainHeaderProps {
 }
 
 function AppMainHeader({ auth, colorPrimario }: MainHeaderProps) {
+    const medioNegroBackground = 'bg-[#333333] dark:bg-[#1a1a1a]';
+
     return (
-        <header className="w-full bg-white dark:bg-[#0a0a0a] shadow-sm">
+        <header className={`w-full shadow-sm ${medioNegroBackground}`}>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <nav className="flex h-16 items-center justify-between">
                     <div className="flex items-center">
@@ -17,10 +19,10 @@ function AppMainHeader({ auth, colorPrimario }: MainHeaderProps) {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        {auth.user ? (
+                         {auth.user ? (
                             <Link
                                 href={route('dashboard')}
-                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                                className="inline-block rounded-sm border border-white px-5 py-1.5 text-sm leading-normal text-white hover:border-gray-200 dark:border-white dark:text-white dark:hover:border-gray-800"
                             >
                                 Administración de la Página Web
                             </Link>
@@ -28,23 +30,15 @@ function AppMainHeader({ auth, colorPrimario }: MainHeaderProps) {
                             <>
                                 <Link
                                     href={route('login')}
-                                    className="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+                                    className="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-white hover:border-gray-200 dark:text-white dark:hover:border-gray-800"
+                                    style={{ backgroundColor: 'white', color: '#1b1b18' }}
                                 >
                                     Iniciar Sesión
                                 </Link>
                                 <Link
                                     href={route('register')}
-                                    className="inline-block rounded-sm border" style={{ borderColor: colorPrimario, color: colorPrimario, padding: '0.375rem 1.25rem', fontSize: '0.875rem', lineHeight: 'normal', fontWeight: 'normal', borderRadius: '0.125rem', backgroundColor: 'transparent', transition: 'background-color 0.15s, color 0.15s' }}
-                                    onMouseOver={(e) => {
-                                        const target = e.target as HTMLButtonElement;
-                                        target.style.backgroundColor = colorPrimario;
-                                        target.style.color = 'white';
-                                    }}
-                                    onMouseOut={(e) => {
-                                        const target = e.target as HTMLButtonElement;
-                                        target.style.backgroundColor = 'transparent';
-                                        target.style.color = colorPrimario;
-                                    }}
+                                    className="inline-block rounded-sm border border-white px-5 py-1.5 text-sm leading-normal text-white hover:bg-white hover:text-black dark:text-white dark:border-white dark:hover:bg-white dark:hover:text-black"
+
                                 >
                                     Registrarse
                                 </Link>
