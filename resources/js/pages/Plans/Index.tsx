@@ -3,10 +3,12 @@ import AppLayout from '@/layouts/app-layout';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from '@inertiajs/react';
 import DeletePlan from './DeletePlansModal';
-import EditModal from './EditModal';
+import EditModal from './EditPlanModal';
 import DetailsModal from './DetailsModal';
+import EditConditionsModal from './EditConditionsModal';
 import { FiEdit, FiTrash2, FiEye,} from "react-icons/fi";
 import SearchControls from '@/components/SearchControls';
+
 
 interface Plan {
     id: number;
@@ -17,6 +19,8 @@ interface Plan {
     duration_in_days: number;
     created_at: string;
     updated_at: string;
+    conditions?: string[];
+    condicion?: string | null;
 }
 
 interface PageProps {
@@ -26,6 +30,10 @@ interface PageProps {
         delete: boolean;
     };
     [key: string]: any;
+}
+
+interface PlanResponse {
+    data: Plan;
 }
 
 export default function PlansIndex({ plans, can }: PageProps) {
@@ -38,6 +46,7 @@ export default function PlansIndex({ plans, can }: PageProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [plansPerPage, setPlansPerPage] = useState<5 | 10 | 20 | 50>(10);
     const [filteredPlans, setFilteredPlans] = useState<Plan[]>(plans);
+    const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
 
     useEffect(() => {
         const filtered: Plan[] = plans.filter(plan => 
@@ -62,6 +71,52 @@ export default function PlansIndex({ plans, can }: PageProps) {
         setDetailsModalOpen(true);
     };
 
+    const handleEditDetailsClick = (plan: Plan) => {
+        setSelectedPlan(plan);
+        setEditDetailsModalOpen(true);
+    };
+
+    const handleSaveConditions = async (newConditions: string[]) => {
+        if (!selectedPlan) return;
+
+        try {
+            await router.put(`/plans/${selectedPlan.id}`, {
+                name: selectedPlan.name,
+                description: selectedPlan.description,
+                price: selectedPlan.price,
+                duration_in_days: selectedPlan.duration_in_days,
+                conditions: newConditions,
+            });
+
+            // Actualizar estado local
+            setFilteredPlans(prev =>
+                prev.map(p =>
+                    p.id === selectedPlan.id
+                        ? { ...p, conditions: newConditions }
+                        : p
+                )
+            );
+            setSelectedPlan(prev =>
+                prev ? { ...prev, conditions: newConditions } : null
+            );
+            setEditDetailsModalOpen(false);
+        } catch (error) {
+            console.error('Error al guardar condiciones:', error);
+        }
+    };
+
+
+    const handleConditionsUpdate = (planId: number, newConditions: string[]) => {
+        setFilteredPlans(prev => prev.map(p => 
+            p.id === planId 
+                ? { ...p, conditions: newConditions } 
+                : p
+        ));
+        if (selectedPlan?.id === planId) {
+            setSelectedPlan(prev => prev ? { ...prev, conditions: newConditions } : null);
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={[{ title: 'Planes', href: '/plans' }]}>
             <Head title="Planes" />
@@ -70,8 +125,8 @@ export default function PlansIndex({ plans, can }: PageProps) {
                     <SearchControls 
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
-                        usersPerPage={plansPerPage}
-                        onUsersPerPageChange={setPlansPerPage}
+                        itemsPerPage={plansPerPage}
+                        onItemsPerPageChange={setPlansPerPage}
                         onActionButtonClick={() => router.visit('/plans/create')}
                         actionButtonName="Nuevo Plan"
                     />
@@ -84,30 +139,48 @@ export default function PlansIndex({ plans, can }: PageProps) {
                         onDelete={handleDeleteClick}
                         onEdit={handleEditClick}
                         onDetails={handleDetailsClick}
+                        onEditDetails={handleEditDetailsClick}
                     />
                 </div>
-            </div>
-            {selectedPlanId && (
-                <DeletePlan
-                    planId={selectedPlanId}
-                    isOpen={deleteModalOpen}
-                    onClose={() => setDeleteModalOpen(false)}
-                />
-            )}
-            {selectedPlan && (
-                <EditModal
-                    plan={selectedPlan}
-                    isOpen={editModalOpen}
-                    onClose={() => setEditModalOpen(false)}
-                />
-            )}
-            {selectedPlan && (
-                <DetailsModal
-                    plan={selectedPlan}
-                    isOpen={detailsModalOpen}
-                    onClose={() => setDetailsModalOpen(false)}
-                />
-            )}
+                </div>
+                {selectedPlanId && (
+                    <DeletePlan
+                        planId={selectedPlanId}
+                        isOpen={deleteModalOpen}
+                        onClose={() => setDeleteModalOpen(false)}
+                    />
+                )}
+                {selectedPlan && (
+                    <EditModal
+                        plan={selectedPlan}
+                        isOpen={editModalOpen}
+                        onClose={() => setEditModalOpen(false)}
+                    />
+                )}
+                {selectedPlan && (
+                    <DetailsModal
+                        plan={selectedPlan}
+                        isOpen={detailsModalOpen}
+                        onClose={() => setDetailsModalOpen(false)}
+                        onConditionsUpdated={(newConditions) => {
+                            // Actualiza el estado local si es necesario
+                            setSelectedPlan(prev => prev ? { ...prev, conditions: newConditions } : null);
+                            setFilteredPlans(prev => prev.map(p => 
+                                p.id === selectedPlan.id 
+                                    ? { ...p, conditions: newConditions } 
+                                    : p
+                            ));
+                        }}
+                    />
+                )}
+                {selectedPlan && (
+                    <EditConditionsModal
+                        plan={selectedPlan}
+                        isOpen={editDetailsModalOpen}
+                        onClose={() => setEditDetailsModalOpen(false)}
+                        onSave={handleSaveConditions}
+                    />
+                )}
         </AppLayout>
     );
 }
@@ -121,6 +194,7 @@ function PlansTable({
     onDelete,
     onEdit,
     onDetails,
+    onEditDetails,
 }: {
     plans: Plan[];
     canEdit: boolean;
@@ -130,6 +204,8 @@ function PlansTable({
     onDelete: (id: number) => void;
     onEdit: (plan: Plan) => void;
     onDetails: (plan: Plan) => void;
+    onEditDetails: (plan: Plan) => void;
+    onConditionsUpdated?: (newConditions: string[]) => void;
 }) {
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -213,6 +289,18 @@ function PlansTable({
                                                         >
                                                             <FiEdit className="mr-2" />
                                                             Editar
+                                                        </button>
+                                                    )}
+                                                    {canEdit && (
+                                                        <button
+                                                            onClick={() => {
+                                                                onEditDetails(plan);
+                                                                setOpenMenuId(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        >
+                                                            <FiEdit className="mr-2" />
+                                                            Condiciones
                                                         </button>
                                                     )}
                                                     <button
