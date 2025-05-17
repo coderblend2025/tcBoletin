@@ -78,4 +78,35 @@ class TraderController extends Controller
 
         return back()->with('success', 'Trader created successfully');
     }
+
+    public function update(Request $request, $id)
+    {
+        $trader = LocationMoneyChanger::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:location_money_changer,code,' . $id,
+            'ubication' => 'required|string|max:255',
+            'lat' => 'required|string',
+            'log' => 'required|string',
+        ]);
+
+        $trader->update([
+            'name' => $validated['name'],
+            'code' => $validated['code'],
+            'ubication_name' => $validated['ubication'],
+            'lan' => $validated['lat'],
+            'log' => $validated['log'],
+        ]);
+
+        return back()->with('success', 'Trader updated successfully');
+    }
+
+    public function destroy($id)
+    {
+        $trader = LocationMoneyChanger::findOrFail($id);
+        $trader->delete();
+        
+        return back()->with('success', 'Trader deleted successfully');
+    }
 }

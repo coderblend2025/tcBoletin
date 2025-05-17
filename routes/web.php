@@ -52,6 +52,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::post('/traders', [TraderController::class, 'store'])->name('traders.store');
+Route::put('/traders/{id}', [TraderController::class, 'update'])->name('traders.update');
+Route::delete('/traders/{id}', [TraderController::class, 'destroy'])->name('traders.destroy');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
