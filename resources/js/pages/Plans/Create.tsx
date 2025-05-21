@@ -12,11 +12,7 @@ export default function PlanCreate() {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        router.post('/plans', form, {
-            onSuccess: () => {
-                alert('Plan creado correctamente.');
-            },
-        });
+        router.post('/plans', form);
     };
 
     return (

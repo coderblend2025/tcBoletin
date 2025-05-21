@@ -6,21 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
-        Schema::create('plans', function (Blueprint $table) {
+        Schema::create('exchange_points', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('location');
             $table->text('description')->nullable();
-            $table->decimal('price', 8, 2);
-            $table->integer('duration_in_days');
-            $table->text('condicion')->nullable(); 
             $table->timestamps();
         });
     }
 
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('plans');
+        Schema::dropIfExists('exchange_points');
     }
 };

@@ -7,7 +7,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TraderController;
 use App\Http\Controllers\PlanController;
-//use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -48,8 +48,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
         Route::resource('plans', PlanController::class)->except(['show']);
-
-      //  Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.admin');
+        Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
+        //Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.admin');
     });
 
     // Rutas para clientes

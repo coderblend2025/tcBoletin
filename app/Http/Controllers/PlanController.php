@@ -10,7 +10,6 @@ class PlanController extends Controller
 {
     public function index()
     {
-        
         $plans = Plan::all()->map(function ($plan) {
             return [
                 'id' => $plan->id,
@@ -20,6 +19,7 @@ class PlanController extends Controller
                 'formatted_price' => $plan->formatted_price,
                 'duration_in_days' => $plan->duration_in_days,
                 'duration_months' => $plan->duration_months,
+                'conditions' => $plan->condicion ? json_decode($plan->condicion) : [],
                 'created_at' => $plan->created_at->toDateString(),
                 'updated_at' => $plan->updated_at->toDateString(),
             ];
@@ -46,9 +46,18 @@ class PlanController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'duration_in_days' => 'required|integer|min:1',
+            'conditions' => 'nullable|array',
         ]);
 
-        Plan::create($validated);
+        $planData = [
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'duration_in_days' => $validated['duration_in_days'],
+            'condicion' => isset($validated['conditions']) ? json_encode($validated['conditions']) : null,
+        ];
+
+        Plan::create($planData);
 
         return redirect()->route('plans.index')->with('success', 'Plan creado correctamente.');
     }
@@ -56,7 +65,14 @@ class PlanController extends Controller
     public function edit(Plan $plan)
     {
         return Inertia::render('Plans/Edit', [
-            'plan' => $plan,
+            'plan' => [
+                'id' => $plan->id,
+                'name' => $plan->name,
+                'description' => $plan->description,
+                'price' => $plan->price,
+                'duration_in_days' => $plan->duration_in_days,
+                'conditions' => $plan->condicion ? json_decode($plan->condicion) : [],
+            ],
         ]);
     }
 
@@ -67,11 +83,20 @@ class PlanController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'duration_in_days' => 'required|integer|min:1',
+            'conditions' => 'nullable|array',
         ]);
 
-        $plan->update($validated);
+        $updateData = [
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'duration_in_days' => $validated['duration_in_days'],
+            'condicion' => isset($validated['conditions']) ? json_encode($validated['conditions']) : null,
+        ];
 
-        return redirect()->route('plans.index')->with('success', 'Plan actualizado correctamente.');
+        $plan->update($updateData);
+
+        return redirect()->back()->with('success', 'Plan actualizado correctamente.');
     }
 
     public function destroy(Plan $plan)

@@ -21,7 +21,6 @@ interface EditModalProps {
 }
 
 export default function EditModal({ plan, isOpen, onClose, errors }: EditModalProps) {
-    // Estado del formulario con valores iniciales del plan
     const [form, setForm] = useState({
         name: '',
         description: '',
@@ -32,7 +31,6 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
 
     const [processing, setProcessing] = useState(false);
 
-    // Actualizar el estado cuando cambia el plan
     useEffect(() => {
         if (plan) {
             setForm({
@@ -71,7 +69,7 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
         >
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
             <Dialog.Panel className="relative bg-white rounded-lg max-w-md w-full p-6 shadow-xl transition-all duration-300">
-                {/* Encabezado */}
+
                 <div className="flex justify-between items-start">
                     <Dialog.Title className="text-xl font-bold text-gray-900">
                         Editar Plan: {plan.name}
@@ -85,9 +83,8 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
                     </button>
                 </div>
 
-                {/* Formulario */}
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                    {/* Campo Nombre */}
+                    
                     <div className="space-y-1">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <FiInfo className="mr-2 text-indigo-500" />
@@ -107,7 +104,6 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
                         )}
                     </div>
 
-                    {/* Campo Descripción */}
                     <div className="space-y-1">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <FiFileText className="mr-2 text-indigo-500" />
@@ -126,7 +122,6 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
                         )}
                     </div>
 
-                    {/* Campo Precio */}
                     <div className="space-y-1">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <FiDollarSign className="mr-2 text-indigo-500" />
@@ -153,7 +148,6 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
                         )}
                     </div>
 
-                    {/* Campo Duración */}
                     <div className="space-y-1">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <FiCalendar className="mr-2 text-indigo-500" />
@@ -174,7 +168,6 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
                         )}
                     </div>
 
-                    {/* Campo Estado */}
                     <div className="flex items-center pt-2">
                         <button
                             type="button"
@@ -192,7 +185,6 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
                         </label>
                     </div>
 
-                    {/* Botones */}
                     <div className="flex justify-end space-x-3 pt-4">
                         <button
                             type="button"
