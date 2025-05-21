@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import ExchangeRateChart from '@/components/charts/exchangeRateChart';
+
 
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -173,7 +175,7 @@ export default function Dashboard() {
                                 <h3 className="text-center text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
                                 Gráfica del Tipo de Cambio del Dólar
                                 </h3>
-                                <canvas id="exchangeRateChart" className="w-full h-64" />
+                                <ExchangeRateChart />
                             </Card>
 
                             {/* ───────────── TIPOS DE CAMBIO EXTERNOS ───────────── */}
