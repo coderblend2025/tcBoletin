@@ -17,9 +17,14 @@ export default function Welcome() {
     const colorTextoSecundario = '#6B7280'; // Slightly lighter secondary gray
     const colorAccent = '#3B82F6'; // A more vibrant, standard blue for links
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    
     useEffect(() => {
         const hasVisited = localStorage.getItem('hasVisited');
+        // Incrementar el contador de visitas
+        const visitCount = localStorage.getItem('visitCount');
+        const newVisitCount = visitCount ? parseInt(visitCount) + 1 : 1;
+        localStorage.setItem('visitCount', newVisitCount.toString());
+
         if (!hasVisited) {
             setIsModalOpen(true);
             localStorage.setItem('hasVisited', 'true');

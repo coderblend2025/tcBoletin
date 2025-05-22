@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface SearchControlsProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
+  itemsPerPage: 5 | 10 | 20 | 50;
+  onItemsPerPageChange: (value: 5 | 10 | 20 | 50) => void;
   onActionButtonClick: () => void;
   actionButtonName: string;
 }
@@ -10,9 +12,26 @@ interface SearchControlsProps {
 export default function SearchControls({
   searchTerm,
   onSearchChange,
+  itemsPerPage,
+  onItemsPerPageChange,
   onActionButtonClick,
   actionButtonName,
 }: SearchControlsProps) {
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const handlePerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = parseInt(e.target.value) as 5 | 10 | 20 | 50;
+    onItemsPerPageChange(value);
+  };
+
+  const handleNuevoUsuarioClick = () => {
+    setIsPopupOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
   return (
     <div className="mb-3 flex items-center justify-between gap-4 px-6">
       <div className="flex items-center gap-4">
@@ -35,16 +54,32 @@ export default function SearchControls({
             aria-label="Buscar"
           />
         </div>
+
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md  bg-white">
+          <span className="text-sm text-gray-700 p-2">Mostrar:</span>
+          <select
+            className="block w-20 pl-2 pr-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-[#005A26] focus:border-[#005A26]"
+            value={itemsPerPage}
+            onChange={handlePerPageChange}
+            aria-label="Items por página"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <span className="text-sm text-gray-700 p-2">por página</span>
+        </div>
       </div>
 
       <button
-        onClick={onActionButtonClick}
-        className="px-4 py-2 bg-[#001276] text-white rounded-md hover:bg-[#00471E] text-sm font-semibold flex items-center gap-2 cursor-pointer"
+          onClick={onActionButtonClick}
+          className="px-4 py-2 bg-[#001276] text-white rounded-md hover:bg-[#00471E] text-sm font-semibold flex items-center gap-2 cursor-pointer"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm7 14a1 1 0 110-2 1 1 0 010 2zm1-4H8a1 1 0 010-2h5a1 1 0 010 2z" />
-        </svg>
-        {actionButtonName}
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm7 14a1 1 0 110-2 1 1 0 010 2zm1-4H8a1 1 0 010-2h5a1 1 0 010 2z" />
+          </svg>
+          {actionButtonName}
       </button>
     </div>
   );

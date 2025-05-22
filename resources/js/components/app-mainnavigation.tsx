@@ -16,7 +16,7 @@ function AppMainNavigation({ colorPrimario }: AppMainNavigationProps) {
     };
 
     useEffect(() => {
-        setIsMenuOpen(false); // Cierra el menú al cambiar de ruta
+        setIsMenuOpen(false);
     }, [url]);
 
     return (

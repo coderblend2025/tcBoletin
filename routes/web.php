@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\TraderController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Plan;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -22,7 +23,17 @@ Route::get('/contact', function () {
 })->name('contact');
 
 Route::get('/work', function () {
-    return Inertia::render('work');
+    $plans = Plan::all()->map(function ($plan) {
+        return [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'conditions' => $plan->condicion ? json_decode($plan->condicion) : [],
+        ];
+    });
+
+    return Inertia::render('work', [
+        'plans' => $plans,
+    ]);
 })->name('work');
 
 Route::get('/news', function () {

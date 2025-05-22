@@ -5,6 +5,7 @@ import { Link } from '@inertiajs/react';
 import DeletePlan from './DeletePlansModal';
 import EditModal from './EditPlanModal';
 import DetailsModal from './DetailsModal';
+import EditConditionsModal from './EditConditionsModal';
 import { FiEdit, FiTrash2, FiEye, FiArrowUp, FiArrowDown } from "react-icons/fi";
 import SearchControls from '@/components/SearchControls';
 
@@ -17,6 +18,7 @@ interface Plan {
     duration_in_days: number;
     created_at: string;
     updated_at: string;
+    conditions?: string[];
 }
 
 interface PageProps {
@@ -38,7 +40,9 @@ export default function PlansIndex({ plans, can }: PageProps) {
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [plansPerPage, setPlansPerPage] = useState<5 | 10 | 20 | 50>(10);
-    
+    const [filteredPlans, setFilteredPlans] = useState<Plan[]>(plans);
+    const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
+
     // Nuevo estado para el ordenamiento
     const [sortConfig, setSortConfig] = useState<{
         key: keyof Plan;
@@ -48,35 +52,47 @@ export default function PlansIndex({ plans, can }: PageProps) {
     // Función para ordenar los planes
     const sortedPlans = useMemo(() => {
         const sortablePlans = [...plans];
-        
-        // Aplicar filtrado primero
         const filtered = searchTerm 
             ? sortablePlans.filter(plan => 
                 plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (plan.description && plan.description.toLowerCase().includes(searchTerm.toLowerCase())))
+                (plan.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false))
             : sortablePlans;
 
-        // Aplicar ordenamiento si hay configuración
         if (sortConfig) {
             filtered.sort((a, b) => {
-                // Ordenamiento numérico para precio y duración
+                const aValue = a[sortConfig.key] ?? '';
+                const bValue = b[sortConfig.key] ?? '';
+
+                // Manejo de números (price, duration_in_days)
                 if (sortConfig.key === 'price' || sortConfig.key === 'duration_in_days') {
                     return sortConfig.direction === 'asc' 
-                        ? a[sortConfig.key] - b[sortConfig.key]
-                        : b[sortConfig.key] - a[sortConfig.key];
+                        ? Number(aValue) - Number(bValue)
+                        : Number(bValue) - Number(aValue);
                 }
-                
-                // Ordenamiento alfabético para otros campos
-                if (a[sortConfig.key] < b[sortConfig.key]) {
-                    return sortConfig.direction === 'asc' ? -1 : 1;
+
+                // Manejo de strings (name, description)
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    return sortConfig.direction === 'asc'
+                        ? aValue.localeCompare(bValue)
+                        : bValue.localeCompare(aValue);
                 }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
-                    return sortConfig.direction === 'asc' ? 1 : -1;
+
+                // Manejo de arrays (conditions)
+                if (Array.isArray(aValue) && Array.isArray(bValue)) {
+                    const aStr = aValue.join(', ');
+                    const bStr = bValue.join(', ');
+                    return sortConfig.direction === 'asc'
+                        ? aStr.localeCompare(bStr)
+                        : bStr.localeCompare(aStr);
                 }
-                return 0;
+
+                // Caso por defecto: convertir a string para comparación
+                return sortConfig.direction === 'asc'
+                    ? String(aValue).localeCompare(String(bValue))
+                    : String(bValue).localeCompare(String(aValue));
             });
         }
-        
+
         return filtered;
     }, [plans, searchTerm, sortConfig]);
 
@@ -105,8 +121,7 @@ export default function PlansIndex({ plans, can }: PageProps) {
             ? <FiArrowDown className="ml-1 text-gray-700" /> 
             : <FiArrowUp className="ml-1 text-gray-700" />;
     };
-
-    // Resto de tus handlers...
+    
     const handleDeleteClick = (id: number) => {
         setSelectedPlanId(id);
         setDeleteModalOpen(true);
@@ -122,6 +137,52 @@ export default function PlansIndex({ plans, can }: PageProps) {
         setDetailsModalOpen(true);
     };
 
+    const handleEditDetailsClick = (plan: Plan) => {
+        setSelectedPlan(plan);
+        setEditDetailsModalOpen(true);
+    };
+
+    const handleSaveConditions = async (newConditions: string[]) => {
+        if (!selectedPlan) return;
+
+        try {
+            await router.put(`/plans/${selectedPlan.id}`, {
+                name: selectedPlan.name,
+                description: selectedPlan.description,
+                price: selectedPlan.price,
+                duration_in_days: selectedPlan.duration_in_days,
+                conditions: newConditions,
+            });
+
+            // Actualizar estado local
+            setFilteredPlans(prev =>
+                prev.map(p =>
+                    p.id === selectedPlan.id
+                        ? { ...p, conditions: newConditions }
+                        : p
+                )
+            );
+            setSelectedPlan(prev =>
+                prev ? { ...prev, conditions: newConditions } : null
+            );
+            setEditDetailsModalOpen(false);
+        } catch (error) {
+            console.error('Error al guardar condiciones:', error);
+        }
+    };
+
+
+    const handleConditionsUpdate = (planId: number, newConditions: string[]) => {
+        setFilteredPlans(prev => prev.map(p => 
+            p.id === planId 
+                ? { ...p, conditions: newConditions } 
+                : p
+        ));
+        if (selectedPlan?.id === planId) {
+            setSelectedPlan(prev => prev ? { ...prev, conditions: newConditions } : null);
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={[{ title: 'Planes', href: '/plans' }]}>
             <Head title="Planes" />
@@ -130,6 +191,8 @@ export default function PlansIndex({ plans, can }: PageProps) {
                     <SearchControls 
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
+                        itemsPerPage={plansPerPage}
+                        onItemsPerPageChange={setPlansPerPage}
                         onActionButtonClick={() => router.visit('/plans/create')}
                         actionButtonName="Nuevo Plan"
                     />
@@ -142,6 +205,7 @@ export default function PlansIndex({ plans, can }: PageProps) {
                         onDelete={handleDeleteClick}
                         onEdit={handleEditClick}
                         onDetails={handleDetailsClick}
+                        onEditDetails={handleEditDetailsClick}
                         requestSort={requestSort}
                         getSortIcon={getSortIcon}
                         sortConfig={sortConfig}
@@ -163,12 +227,29 @@ export default function PlansIndex({ plans, can }: PageProps) {
                 />
             )}
             {selectedPlan && (
-                <DetailsModal
-                    plan={selectedPlan}
-                    isOpen={detailsModalOpen}
-                    onClose={() => setDetailsModalOpen(false)}
-                />
-            )}
+                    <DetailsModal
+                        plan={selectedPlan}
+                        isOpen={detailsModalOpen}
+                        onClose={() => setDetailsModalOpen(false)}
+                        onConditionsUpdated={(newConditions) => {
+                            // Actualiza el estado local si es necesario
+                            setSelectedPlan(prev => prev ? { ...prev, conditions: newConditions } : null);
+                            setFilteredPlans(prev => prev.map(p => 
+                                p.id === selectedPlan.id 
+                                    ? { ...p, conditions: newConditions } 
+                                    : p
+                            ));
+                        }}
+                    />
+                )}
+                {selectedPlan && (
+                    <EditConditionsModal
+                        plan={selectedPlan}
+                        isOpen={editDetailsModalOpen}
+                        onClose={() => setEditDetailsModalOpen(false)}
+                        onSave={handleSaveConditions}
+                    />
+                )}
         </AppLayout>
     );
 }
@@ -182,6 +263,7 @@ function PlansTable({
     onDelete,
     onEdit,
     onDetails,
+    onEditDetails,
     requestSort,
     getSortIcon,
     sortConfig,
@@ -194,6 +276,8 @@ function PlansTable({
     onDelete: (id: number) => void;
     onEdit: (plan: Plan) => void;
     onDetails: (plan: Plan) => void;
+    onEditDetails: (plan: Plan) => void;
+    onConditionsUpdated?: (newConditions: string[]) => void;
     requestSort: (key: keyof Plan) => void;
     getSortIcon: (key: keyof Plan) => React.ReactNode;
     sortConfig: { key: keyof Plan; direction: 'asc' | 'desc' } | null;
@@ -314,6 +398,18 @@ function PlansTable({
                                                         >
                                                             <FiEdit className="mr-2" />
                                                             Editar
+                                                        </button>
+                                                    )}
+                                                    {canEdit && (
+                                                        <button
+                                                            onClick={() => {
+                                                                onEditDetails(plan);
+                                                                setOpenMenuId(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        >
+                                                            <FiEdit className="mr-2" />
+                                                            Condiciones
                                                         </button>
                                                     )}
                                                     <button

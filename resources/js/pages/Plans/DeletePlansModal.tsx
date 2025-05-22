@@ -20,7 +20,7 @@ export default function DeletePlan({ planId, isOpen, onClose }: DeletePlanProps)
                 setTimeout(() => {
                     setShowSuccess(false);
                     onClose();
-                }, 1500); // Cierra automáticamente después de 1.5 segundos
+                }, 1000);
             },
             onError: () => {
                 alert('Error al eliminar el plan');

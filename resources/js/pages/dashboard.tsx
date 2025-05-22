@@ -191,12 +191,12 @@ export default function Dashboard() {
                                 value={stats.activeSellersToday.toLocaleString()}
                                 subtitle="Activos hoy"
                             />
-
+                            
                             {/* Visits Card */}
                             <StatCard
                                 icon={<BarChart3 className="mx-auto h-12 w-12 text-blue-600 dark:text-blue-400" />}
                                 title="Ingresos a la Página"
-                                value={stats.totalPageViews.toLocaleString()}
+                                value={(localStorage.getItem('visitCount') || '0')} // Usar visitCount desde localStorage
                                 subtitle={`Visitas únicas hoy: ${stats.uniqueVisitsToday}`}
                             />
 
