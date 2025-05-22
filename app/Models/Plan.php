@@ -14,15 +14,18 @@ class Plan extends Model
         'description',
         'price',
         'duration_in_days',
+        'condicion',
     ];
 
-    // Opcional: Formatear el precio para el frontend
+    protected $casts = [
+        'condicion' => 'array',
+    ];
+
     public function getFormattedPriceAttribute()
     {
         return '$' . number_format($this->price, 2);
     }
 
-    // Opcional: Calcular duración en meses para el frontend
     public function getDurationMonthsAttribute()
     {
         return round($this->duration_in_days / 30);

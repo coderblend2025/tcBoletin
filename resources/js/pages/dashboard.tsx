@@ -9,6 +9,7 @@ import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -50,6 +51,40 @@ export default function Dashboard() {
     const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
     const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    const [stats, setStats] = useState({
+        totalUsers: 0,
+        newUsersThisWeek: 0,
+        activeSellersToday: 0,
+        totalPageViews: 0,
+        uniqueVisitsToday: 0,
+        totalExchangePoints: 0
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (isAdmin) {
+            const fetchStats = async () => {
+                try {
+                    const response = await axios.get('/dashboard-stats');
+                    setStats({
+                        totalUsers: response.data.total_users,
+                        newUsersThisWeek: response.data.new_users_this_week,
+                        activeSellersToday: response.data.active_sellers_today,
+                        totalPageViews: response.data.total_page_views,
+                        uniqueVisitsToday: response.data.unique_visits_today,
+                        totalExchangePoints: response.data.total_exchange_points
+                    });
+                } catch (error) {
+                    console.error('Error fetching stats:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchStats();
+        }
+    }, [isAdmin]);
 
     // Init Google Map
     window.initMap = () => {
@@ -107,6 +142,16 @@ export default function Dashboard() {
         }
     };
 
+    if (loading && isAdmin) {
+        return (
+            <AppLayout breadcrumbs={breadcrumbs}>
+                <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+            </AppLayout>
+        );
+    }
+    
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard">
@@ -123,9 +168,6 @@ export default function Dashboard() {
                             Panel Administrativo
                         </h4>
                         <hr />
-                        <span className="text-gray-600 text-[11px]">
-                            Todos los usuarios del sistema aparecerán aquí
-                        </span>
                     </div>
                 </div>
             
@@ -138,30 +180,30 @@ export default function Dashboard() {
                             <StatCard
                                 icon={<Users className="mx-auto h-12 w-12 text-indigo-600 dark:text-indigo-400" />}
                                 title="Usuarios Registrados"
-                                value="1,234"
-                                subtitle="Nuevos esta semana: 56"
+                                value={stats.totalUsers.toLocaleString()}
+                                subtitle={`Nuevos esta semana: ${stats.newUsersThisWeek}`}
                             />
 
                             {/* Sellers Card */}
                             <StatCard
                                 icon={<DollarSign className="mx-auto h-12 w-12 text-green-600 dark:text-green-400" />}
                                 title="Vendedores de Dólares"
-                                value="567"
-                                subtitle="Activos hoy: 450"
+                                value={stats.activeSellersToday.toLocaleString()}
+                                subtitle="Activos hoy"
                             />
-
+                            
                             {/* Visits Card */}
                             <StatCard
                                 icon={<BarChart3 className="mx-auto h-12 w-12 text-blue-600 dark:text-blue-400" />}
                                 title="Ingresos a la Página"
-                                value="8,910"
-                                subtitle="Visitas únicas hoy: 1,289"
+                                value={(localStorage.getItem('visitCount') || '0')} // Usar visitCount desde localStorage
+                                subtitle={`Visitas únicas hoy: ${stats.uniqueVisitsToday}`}
                             />
 
                             <StatCard
                                 icon={<Globe className="mx-auto h-12 w-12 text-amber-600 dark:text-amber-400" />}
                                 title="Puntos de Cambio"
-                                value="89"
+                                value={stats.totalExchangePoints.toLocaleString()}
                                 subtitle="Registrados hasta hoy"
                             />
                         </div>

@@ -67,8 +67,8 @@ export default function UsersIndex() {
                             actionButtonName="Nuevo Usuario"
                             onActionButtonClick={handleNuevoUsuarioClick}
                             onSearchChange={setSearchTerm}
-                            usersPerPage={users.per_page as 5 | 10 | 20 | 50}
-                            onUsersPerPageChange={(perPage) => {
+                            itemsPerPage={users.per_page as 5 | 10 | 20 | 50}
+                            onItemsPerPageChange={(perPage) => {
                                 window.location.href = `/users?page=${users.current_page}&per_page=${perPage}`;
                             }}
                         />

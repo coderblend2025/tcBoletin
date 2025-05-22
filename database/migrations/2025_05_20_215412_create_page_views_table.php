@@ -6,21 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('plans', function (Blueprint $table) {
+        Schema::create('page_views', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->decimal('price', 8, 2);
-            $table->integer('duration_in_days');
-            $table->text('condicion')->nullable(); 
+            $table->string('ip');
+            $table->text('user_agent')->nullable();
+            $table->string('path');
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('plans');
+        Schema::dropIfExists('page_views');
     }
 };
