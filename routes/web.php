@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::resource('users', UserController::class)->except(['show', 'create', 'edit']);
         Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
         Route::resource('plans', PlanController::class)->except(['show']);
 
