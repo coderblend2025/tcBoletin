@@ -3,6 +3,7 @@ import SearchControls from '@/components/SearchControls';
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 
 interface User {
     id: string;
@@ -290,6 +291,28 @@ function UsersTable({
     onDelete: (user: User) => void;
 }) {
     const menuRef = useRef<HTMLDivElement | null>(null);
+    const [sortField, setSortField] = useState<string>('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+    const handleSort = (field: string) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
+
+    const sortedUsers = [...users].sort((a, b) => {
+        const aValue = a[sortField as keyof User];
+        const bValue = b[sortField as keyof User];
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+            return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        }
+
+        return 0;
+    });
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -310,15 +333,39 @@ function UsersTable({
                 <thead className="bg-gray-100">
                     <tr>
                         <th className="w-[50px] px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">#</th>
-                        <th className="w-[250px] px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Nombre</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Email</th>
-                        <th className="w-[120px] px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Rol</th>
+                        <th
+                            className="w-[250px] cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-200"
+                            onClick={() => handleSort('name')}
+                        >
+                            <div className="inline-flex cursor-pointer items-center gap-x-2">
+                                <span>Nombre</span>
+                                {sortField === 'name' && (sortDirection === 'asc' ? <FaAngleUp /> : <FaAngleDown />)}
+                            </div>
+                        </th>
+                        <th
+                            className="cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-200"
+                            onClick={() => handleSort('email')}
+                        >
+                            <div className="inline-flex cursor-pointer items-center gap-x-2">
+                                <span>Email</span>
+                                {sortField === 'email' && (sortDirection === 'asc' ? <FaAngleUp /> : <FaAngleDown />)}
+                            </div>
+                        </th>
+                        <th
+                            className="w-[120px] cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-200"
+                            onClick={() => handleSort('role')}
+                        >
+                            <div className="inline-flex cursor-pointer items-center gap-x-2">
+                                <span>Rol</span>
+                                {sortField === 'role' && (sortDirection === 'asc' ? <FaAngleUp /> : <FaAngleDown />)}
+                            </div>
+                        </th>
                         <th className="w-[100px] px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Acciones</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                    {users.length > 0 ? (
-                        users.map((user, index) => (
+                    {sortedUsers.length > 0 ? (
+                        sortedUsers.map((user, index) => (
                             <tr key={user.id} className="hover:bg-gray-50">
                                 <td className="w-[50px] px-4 py-3 text-left text-sm font-medium text-gray-700">
                                     {(currentPage - 1) * usersPerPage + index + 1}
