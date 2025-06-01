@@ -1,14 +1,13 @@
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from '@inertiajs/react';
 import DeletePlan from './DeletePlansModal';
 import EditModal from './EditPlanModal';
 import DetailsModal from './DetailsModal';
 import EditConditionsModal from './EditConditionsModal';
-import { FiEdit, FiTrash2, FiEye,} from "react-icons/fi";
+import { FiEdit, FiTrash2, FiEye, FiArrowUp, FiArrowDown } from "react-icons/fi";
 import SearchControls from '@/components/SearchControls';
-
 
 interface Plan {
     id: number;
@@ -20,7 +19,6 @@ interface Plan {
     created_at: string;
     updated_at: string;
     conditions?: string[];
-    condicion?: string | null;
 }
 
 interface PageProps {
@@ -32,11 +30,8 @@ interface PageProps {
     [key: string]: any;
 }
 
-interface PlanResponse {
-    data: Plan;
-}
-
 export default function PlansIndex({ plans, can }: PageProps) {
+    
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
@@ -48,14 +43,85 @@ export default function PlansIndex({ plans, can }: PageProps) {
     const [filteredPlans, setFilteredPlans] = useState<Plan[]>(plans);
     const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
 
-    useEffect(() => {
-        const filtered: Plan[] = plans.filter(plan => 
-            plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (plan.description && plan.description.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-        setFilteredPlans(filtered);
-    }, [searchTerm, plans]);
+    // Nuevo estado para el ordenamiento
+    const [sortConfig, setSortConfig] = useState<{
+        key: keyof Plan;
+        direction: 'asc' | 'desc';
+    } | null>(null);
 
+    // Función para ordenar los planes
+    const sortedPlans = useMemo(() => {
+        const sortablePlans = [...plans];
+        const filtered = searchTerm 
+            ? sortablePlans.filter(plan => 
+                plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (plan.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false))
+            : sortablePlans;
+
+        if (sortConfig) {
+            filtered.sort((a, b) => {
+                const aValue = a[sortConfig.key] ?? '';
+                const bValue = b[sortConfig.key] ?? '';
+
+                // Manejo de números (price, duration_in_days)
+                if (sortConfig.key === 'price' || sortConfig.key === 'duration_in_days') {
+                    return sortConfig.direction === 'asc' 
+                        ? Number(aValue) - Number(bValue)
+                        : Number(bValue) - Number(aValue);
+                }
+
+                // Manejo de strings (name, description)
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    return sortConfig.direction === 'asc'
+                        ? aValue.localeCompare(bValue)
+                        : bValue.localeCompare(aValue);
+                }
+
+                // Manejo de arrays (conditions)
+                if (Array.isArray(aValue) && Array.isArray(bValue)) {
+                    const aStr = aValue.join(', ');
+                    const bStr = bValue.join(', ');
+                    return sortConfig.direction === 'asc'
+                        ? aStr.localeCompare(bStr)
+                        : bStr.localeCompare(aStr);
+                }
+
+                // Caso por defecto: convertir a string para comparación
+                return sortConfig.direction === 'asc'
+                    ? String(aValue).localeCompare(String(bValue))
+                    : String(bValue).localeCompare(String(aValue));
+            });
+        }
+
+        return filtered;
+    }, [plans, searchTerm, sortConfig]);
+
+    // Función para manejar el ordenamiento
+    const requestSort = (key: keyof Plan) => {
+        // Si ya está ordenado por esta columna, alternar dirección
+        if (sortConfig && sortConfig.key === key) {
+            setSortConfig({
+                key,
+                direction: sortConfig.direction === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            // Primera vez que se ordena esta columna (ascendente por defecto)
+            setSortConfig({ key, direction: 'asc' });
+        }
+    };
+
+    // Función para obtener el icono correcto
+    const getSortIcon = (key: keyof Plan) => {
+        // Si no hay ordenamiento o es otra columna, mostrar ↑ (por defecto)
+        if (!sortConfig || sortConfig.key !== key) {
+            return <FiArrowUp className="ml-1 text-gray-400" />;
+        }
+        // Mostrar ↓ si está ordenado descendente
+        return sortConfig.direction === 'desc' 
+            ? <FiArrowDown className="ml-1 text-gray-700" /> 
+            : <FiArrowUp className="ml-1 text-gray-700" />;
+    };
+    
     const handleDeleteClick = (id: number) => {
         setSelectedPlanId(id);
         setDeleteModalOpen(true);
@@ -131,7 +197,7 @@ export default function PlansIndex({ plans, can }: PageProps) {
                         actionButtonName="Nuevo Plan"
                     />
                     <PlansTable
-                        plans={filteredPlans}
+                        plans={sortedPlans}
                         canEdit={can.edit}
                         canDelete={can.delete}
                         openMenuId={openMenuId}
@@ -140,24 +206,27 @@ export default function PlansIndex({ plans, can }: PageProps) {
                         onEdit={handleEditClick}
                         onDetails={handleDetailsClick}
                         onEditDetails={handleEditDetailsClick}
+                        requestSort={requestSort}
+                        getSortIcon={getSortIcon}
+                        sortConfig={sortConfig}
                     />
                 </div>
-                </div>
-                {selectedPlanId && (
-                    <DeletePlan
-                        planId={selectedPlanId}
-                        isOpen={deleteModalOpen}
-                        onClose={() => setDeleteModalOpen(false)}
-                    />
-                )}
-                {selectedPlan && (
-                    <EditModal
-                        plan={selectedPlan}
-                        isOpen={editModalOpen}
-                        onClose={() => setEditModalOpen(false)}
-                    />
-                )}
-                {selectedPlan && (
+            </div>
+             {selectedPlanId && (
+                <DeletePlan
+                    planId={selectedPlanId}
+                    isOpen={deleteModalOpen}
+                    onClose={() => setDeleteModalOpen(false)}
+                />
+            )}
+            {selectedPlan && (
+                <EditModal
+                    plan={selectedPlan}
+                    isOpen={editModalOpen}
+                    onClose={() => setEditModalOpen(false)}
+                />
+            )}
+            {selectedPlan && (
                     <DetailsModal
                         plan={selectedPlan}
                         isOpen={detailsModalOpen}
@@ -195,6 +264,9 @@ function PlansTable({
     onEdit,
     onDetails,
     onEditDetails,
+    requestSort,
+    getSortIcon,
+    sortConfig,
 }: {
     plans: Plan[];
     canEdit: boolean;
@@ -206,6 +278,9 @@ function PlansTable({
     onDetails: (plan: Plan) => void;
     onEditDetails: (plan: Plan) => void;
     onConditionsUpdated?: (newConditions: string[]) => void;
+    requestSort: (key: keyof Plan) => void;
+    getSortIcon: (key: keyof Plan) => React.ReactNode;
+    sortConfig: { key: keyof Plan; direction: 'asc' | 'desc' } | null;
 }) {
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -227,12 +302,46 @@ function PlansTable({
             <table className="min-w-full divide-y divide-gray-200 rounded-md shadow-sm">
                 <thead className="bg-gray-50">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duración (días)</th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('name')}
+                        >
+                            <div className="flex items-center">
+                                Nombre
+                                {getSortIcon('name')}
+                            </div>
+                        </th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('description')}
+                        >
+                            <div className="flex items-center">
+                                Descripción
+                                {getSortIcon('description')}
+                            </div>
+                        </th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('price')}
+                        >
+                            <div className="flex items-center">
+                                Precio
+                                {getSortIcon('price')}
+                            </div>
+                        </th>
+                        <th 
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            onClick={() => requestSort('duration_in_days')}
+                        >
+                            <div className="flex items-center">
+                                Duración (días)
+                                {getSortIcon('duration_in_days')}
+                            </div>
+                        </th>
                         {(canEdit || canDelete) && (
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones
+                            </th>
                         )}
                     </tr>
                 </thead>

@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { GoogleMap, Libraries, Marker, useLoadScript } from '@react-google-maps/api';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { IoMdAdd } from 'react-icons/io';
 
 const mapContainerStyle = {
     width: '100%',
@@ -47,6 +48,16 @@ interface SearchControlsProps {
     onUsersPerPageChange: (value: 5 | 10 | 20 | 50) => void;
     onActionButtonClick: () => void;
     actionButtonName: string;
+    isPopupOpen: boolean;
+    setIsPopupOpen: (isOpen: boolean) => void;
+    initialData?: {
+        id: string | null;
+        name: string;
+        code: string;
+        ubication: string;
+        lat: string;
+        log: string;
+    };
 }
 
 interface FormData {
@@ -64,17 +75,21 @@ export default function SearchControlsTraders({
     onUsersPerPageChange,
     onActionButtonClick,
     actionButtonName,
+    isPopupOpen,
+    setIsPopupOpen,
+    initialData,
 }: SearchControlsProps) {
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [selectedPosition, setSelectedPosition] = useState<google.maps.LatLngLiteral | null>(null);
     const mapRef = useRef<google.maps.Map | null>(null);
-    const { data, setData, post, processing, errors } = useForm({
-        name: '',
-        code: '',
-        ubication: '',
-        lat: '',
-        log: '',
+    const { data, setData, post, put, processing, errors } = useForm({
+        id: initialData?.id || '',
+        name: initialData?.name || '',
+        code: initialData?.code || '',
+        ubication: initialData?.ubication || '',
+        lat: initialData?.lat || '',
+        log: initialData?.log || '',
     });
+
     const allTrue = () => {
         if (data.name && data.code && data.ubication && selectedPosition) {
             return true;
@@ -87,6 +102,7 @@ export default function SearchControlsTraders({
         post('/traders', {
             onSuccess: () => {
                 setData({
+                    id: '',
                     name: '',
                     code: '',
                     ubication: '',
@@ -98,6 +114,16 @@ export default function SearchControlsTraders({
             },
         });
     };
+
+    const handleEditTrader = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        put(`/traders/${data.id}`, {
+            onSuccess: () => {
+                closePopup();
+            },
+        });
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setData((data) => ({
@@ -112,15 +138,12 @@ export default function SearchControlsTraders({
     });
 
     const formatDirections = (results: GeocoderResult[]): string => {
-        console.log(results);
         if (results.length > 0 && results[0].address_components && results[0].address_components.length > 0) {
             const hasPlusCode = results[0].address_components[0].types.includes('plus_code');
-            console.log('hasplus', hasPlusCode);
             if (hasPlusCode) {
                 const completeName = results[0].formatted_address; //JR3W+2X Cochabamba, Cochabamba, Bolivia
                 const plus_code = results[0].address_components[0].long_name; //JR3W+2X
                 const withoutCode = completeName.replace(plus_code + ',', '').trim();
-                console.log('Plus code found');
                 return withoutCode;
             }
             return results[0].formatted_address;
@@ -134,9 +157,20 @@ export default function SearchControlsTraders({
         return (string1 + '-' + string2).replaceAll(' ', '-').toLowerCase();
     };
 
-    const onMapLoad = useCallback((map: google.maps.Map) => {
-        mapRef.current = map;
-    }, []);
+    const onMapLoad = useCallback(
+        (map: google.maps.Map) => {
+            mapRef.current = map;
+            if (initialData?.lat && initialData?.log) {
+                const position = {
+                    lat: parseFloat(initialData.lat),
+                    lng: parseFloat(initialData.log),
+                };
+                map.setCenter(position);
+                map.setZoom(15);
+            }
+        },
+        [initialData],
+    );
 
     const onMapClick = useCallback(
         (e: google.maps.MapMouseEvent) => {
@@ -187,7 +221,50 @@ export default function SearchControlsTraders({
 
     const closePopup = () => {
         setIsPopupOpen(false);
+        // Reset form data
+        setData({
+            id: '',
+            name: '',
+            code: '',
+            ubication: '',
+            lat: '',
+            log: '',
+        });
+        // Reset selected position
+        setSelectedPosition(null);
     };
+
+    useEffect(() => {
+        //console.log('Effect triggered with initialData:', initialData);
+        if (initialData) {
+            //console.log('Setting form data with:', initialData);
+            setData({
+                id: initialData.id ?? '',
+                name: initialData.name ?? '',
+                code: initialData.code ?? '',
+                ubication: initialData.ubication ?? '',
+                lat: initialData.lat ?? '',
+                log: initialData.log,
+            });
+
+            if (initialData.lat && initialData.log) {
+                //console.log('Setting map position with:', initialData.lat, initialData.log);
+                const position = {
+                    lat: parseFloat(initialData.lat),
+                    lng: parseFloat(initialData.log),
+                };
+                setSelectedPosition(position);
+
+                if (mapRef.current) {
+                    //console.log('Centering map on position:', position);
+                    mapRef.current.setCenter(position);
+                    mapRef.current.setZoom(15);
+                } else {
+                    //console.log('Map ref is not available yet');
+                }
+            }
+        }
+    }, [initialData]);
 
     if (loadError) {
         return <div>Error loading maps</div>;
@@ -237,9 +314,7 @@ export default function SearchControlsTraders({
                 onClick={handleNuevoUsuarioClick}
                 className="flex cursor-pointer items-center gap-2 rounded-md bg-[#001276] px-4 py-2 text-sm font-semibold text-white hover:bg-[#00471E] focus:ring-2 focus:ring-[#005A26] focus:ring-offset-1 focus:outline-none"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm7 14a1 1 0 110-2 1 1 0 010 2zm1-4H8a1 1 0 010-2h5a1 1 0 010 2z" />
-                </svg>
+                <IoMdAdd />
                 {actionButtonName}
             </button>
 
@@ -304,18 +379,26 @@ export default function SearchControlsTraders({
                                     <input
                                         type="text"
                                         id="coordinates"
-                                        value={selectedPosition ? `${selectedPosition.lat.toFixed(6)}, ${selectedPosition.lng.toFixed(6)}` : ''}
+                                        value={
+                                            selectedPosition
+                                                ? `${selectedPosition.lat.toFixed(6)}, ${selectedPosition.lng.toFixed(6)}`
+                                                : data.lat && data.log
+                                                  ? `${data.lat}, ${data.log}`
+                                                  : ''
+                                        }
                                         disabled={true}
                                         className="block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5 text-sm"
                                     />
                                 </div>
                                 <div className="mt-10 flex items-center justify-end gap-2">
                                     <button
-                                        onClick={(e) => handleCreateTrader(e)}
+                                        onClick={(e) => {
+                                            data.id !== '' ? handleEditTrader(e) : handleCreateTrader(e);
+                                        }}
                                         className={`mt-4 rounded-md ${allTrue() ? 'bg-blue-900' : 'bg-gray-500'} cursor-pointer px-4 py-2 text-white hover:bg-blue-600`}
                                         disabled={!allTrue()}
                                     >
-                                        Aceptar
+                                        {data.id !== '' ? 'Editar' : 'Aceptar'}
                                     </button>
                                     <button
                                         onClick={closePopup}
@@ -336,21 +419,13 @@ export default function SearchControlsTraders({
                                 ) : (
                                     <GoogleMap
                                         mapContainerStyle={mapContainerStyle}
-                                        center={center}
-                                        zoom={13}
+                                        center={selectedPosition || center}
+                                        zoom={selectedPosition ? 15 : 13}
                                         options={mapOptions}
                                         onLoad={onMapLoad}
                                         onClick={onMapClick}
                                     >
                                         {selectedPosition && <Marker position={selectedPosition} onClick={() => setIsPopupOpen(true)} />}
-                                        {/* {isPopupOpen && selectedPosition && (
-                                            <InfoWindow position={selectedPosition} onCloseClick={() => setIsPopupOpen(false)}>
-                                                <div>
-                                                    <p>Latitud: {selectedPosition.lat}</p>
-                                                    <p>Longitud: {selectedPosition.lng}</p>
-                                                </div>
-                                            </InfoWindow>
-                                        )} */}
                                     </GoogleMap>
                                 )}
                             </div>

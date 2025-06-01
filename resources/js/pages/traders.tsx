@@ -1,7 +1,8 @@
+import ConfirmationModal from '@/components/ConfirmationModal';
 import Pagination from '@/components/pagination';
 import SearchControlsTraders from '@/components/SearchControlsTraders';
 import AppLayout from '@/layouts/app-layout';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 
@@ -33,6 +34,23 @@ export default function traders() {
     const [searchTerm, setSearchTerm] = useState('');
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [formData, setFormData] = useState<{
+        id: string;
+        name: string;
+        code: string;
+        ubication: string;
+        lat: string;
+        log: string;
+    }>({
+        id: '',
+        name: '',
+        code: '',
+        ubication: '',
+        lat: '',
+        log: '',
+    });
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [traderToDelete, setTraderToDelete] = useState<Trader | null>(null);
 
     const filteredUsers = useMemo(() => {
         if (!searchTerm) return traders.data;
@@ -48,6 +66,22 @@ export default function traders() {
 
     const closePopup = () => {
         setIsPopupOpen(false);
+    };
+
+    const onDeleteTrader = (trader: Trader) => {
+        setTraderToDelete(trader);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = () => {
+        if (traderToDelete) {
+            router.delete(`/traders/${traderToDelete.id}`, {
+                onSuccess: () => {
+                    setIsDeleteModalOpen(false);
+                    setTraderToDelete(null);
+                },
+            });
+        }
     };
 
     return (
@@ -77,6 +111,9 @@ export default function traders() {
                             onUsersPerPageChange={(perPage) => {
                                 window.location.href = `/traders?page=${traders.current_page}&per_page=${perPage}`;
                             }}
+                            isPopupOpen={isPopupOpen}
+                            setIsPopupOpen={setIsPopupOpen}
+                            initialData={formData}
                         />
 
                         <UsersTable
@@ -85,6 +122,20 @@ export default function traders() {
                             usersPerPage={traders.per_page}
                             openMenuId={openMenuId}
                             setOpenMenuId={setOpenMenuId}
+                            isPopupOpen={isPopupOpen}
+                            setIsPopupOpen={setIsPopupOpen}
+                            onEditTrader={(trader) => {
+                                setFormData({
+                                    id: trader.id,
+                                    name: trader.name,
+                                    code: trader.code,
+                                    ubication: trader.ubication_name,
+                                    lat: trader.lan,
+                                    log: trader.log,
+                                });
+                                setIsPopupOpen(true);
+                            }}
+                            onDeleteTrader={onDeleteTrader}
                         />
 
                         <Pagination
@@ -99,50 +150,16 @@ export default function traders() {
                     </div>
                 </div>
             </div>
-
-            {isPopupOpen && (
-                <div className="bg-opacity-50 fixed inset-0 flex items-center justify-center bg-black">
-                    <div className="w-1/3 rounded-lg bg-white p-6 shadow-lg">
-                        <h2 className="mb-4 text-lg font-semibold">Crear Nuevo Usuario</h2>
-                        <form>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Nombre</label>
-                                <input
-                                    type="text"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Email</label>
-                                <input
-                                    type="email"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Rol</label>
-                                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                    <option>Admin</option>
-                                    <option>Editor</option>
-                                    <option>Viewer</option>
-                                </select>
-                            </div>
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    onClick={closePopup}
-                                    className="mr-2 rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                                >
-                                    Cancelar
-                                </button>
-                                <button type="submit" className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
-                                    Guardar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setTraderToDelete(null);
+                }}
+                onConfirm={handleDeleteConfirm}
+                title="Eliminar Librecambista"
+                message={`¿Está seguro que desea eliminar el librecambista "${traderToDelete?.name}"? Esta acción no se puede deshacer.`}
+            />
         </AppLayout>
     );
 }
@@ -153,12 +170,20 @@ function UsersTable({
     usersPerPage,
     openMenuId,
     setOpenMenuId,
+    isPopupOpen,
+    setIsPopupOpen,
+    onEditTrader,
+    onDeleteTrader,
 }: {
     users: Trader[];
     currentPage: number;
     usersPerPage: number;
     openMenuId: string | null;
     setOpenMenuId: React.Dispatch<React.SetStateAction<string | null>>;
+    isPopupOpen: boolean;
+    setIsPopupOpen: (isOpen: boolean) => void;
+    onEditTrader: (trader: Trader) => void;
+    onDeleteTrader: (trader: Trader) => void;
 }) {
     const menuRef = useRef<HTMLDivElement | null>(null);
     const [sortField, setSortField] = useState<string>('name');
@@ -272,11 +297,16 @@ function UsersTable({
                                             ref={menuRef}
                                             className="absolute right-0 z-50 mt-2 w-32 rounded border border-gray-200 bg-white shadow-md"
                                         >
-                                            <button className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">Ver</button>
-                                            <button className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
+                                            <button
+                                                onClick={() => onEditTrader(trader)}
+                                                className="block w-full cursor-pointer px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                                            >
                                                 Editar
                                             </button>
-                                            <button className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100">
+                                            <button
+                                                onClick={() => onDeleteTrader(trader)}
+                                                className="block w-full cursor-pointer px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                                            >
                                                 Eliminar
                                             </button>
                                         </div>
@@ -286,8 +316,8 @@ function UsersTable({
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={5} className="px-6 py-4 text-center text-sm whitespace-nowrap text-gray-500">
-                                No se encontraron usuarios
+                            <td colSpan={6} className="px-4 py-3 text-center text-sm text-gray-500">
+                                No se encontraron resultados
                             </td>
                         </tr>
                     )}
