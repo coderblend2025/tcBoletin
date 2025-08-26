@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\TraderController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SubcriptionController;
+use App\Http\Controllers\LocationMoneyChangerPriceController;
 use App\Models\Plan;
 
 Route::get('/', function () {
@@ -52,28 +54,68 @@ Route::get('/infoSpeculation', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
     
-    // Rutas para administradores
+   
+    Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
+    Route::post('/traders', [TraderController::class, 'store'])->name('traders.store');
+    Route::put('/traders/{id}', [TraderController::class, 'update'])->name('traders.update');
+    Route::delete('/traders/{id}', [TraderController::class, 'destroy'])->name('traders.destroy');
+   
+      // Rutas para administradores
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
-        Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::resource('users', UserController::class)->except(['show', 'create', 'edit']);
-        Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
+        Route::get('/pagos', function() {
+            return Inertia::render('Pagos');
+        })->name('pagos.index');
         Route::resource('plans', PlanController::class)->except(['show']);
         Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
         //Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.admin');
+        
+        
+        Route::get('/subscriptions', [SubcriptionController::class, 'index'])->name('subscriptions.index');
+       
+        Route::post('/subscriptions', [SubcriptionController::class, 'creator'])->name('subscriptions.creator'); 
+        Route::put('/subscriptions/{id}', [SubcriptionController::class, 'show'])->name('subscriptions.show');
+        Route::delete('/subscriptions/{id}', [SubcriptionController::class, 'destroy'])->name('subscriptions.destroy');
+        
+        Route::post('/subscriptions/{id}/pay', [SubcriptionController::class, 'pay'])->name('subscriptions.pay');
+        Route::get('/subscriptions/{id}/cancel', [SubcriptionController::class, 'cancel'])->name('subscriptions.cancel');
+        
+        Route::prefix('location-money-changer-price')->group(function () {
+                // Obtener todos los precios para un location_money_changer específico
+                Route::get('/{id_location_money_changer}', [LocationMoneyChangerPriceController::class, 'index']);
+
+                // Crear un nuevo precio
+                Route::post('/', [LocationMoneyChangerPriceController::class, 'store']);
+
+                // Actualizar un precio
+                Route::put('/{id}', [LocationMoneyChangerPriceController::class, 'update']);
+
+                // Eliminar un precio
+                Route::delete('/{id}', [LocationMoneyChangerPriceController::class, 'destroy']);
+       
+                Route::get('/info/{id_location_money_changer}', [LocationMoneyChangerPriceController::class, 'getPricesInfo']);
+
+            });
+
     });
 
     // Rutas para clientes
     Route::middleware(['role:customer'])->group(function () {
         Route::get('/services', fn () => Inertia::render('Services/Index'))->name('services.customer');
-        Route::get('/my-subscriptions', fn () => Inertia::render('Subscriptions/MySubscriptions'))->name('my-subscriptions');
+        Route::get('/my-subscriptions', fn () => Inertia::render('Subscriptions/MySubscriptions'))->name('my-subs
+        criptions');
+        Route::get('/money-changers', [LocationMoneyChangerPriceController::class, 'indexWithLatestPrices']);
+        Route::get('/money-changers/best-usd-sale', [LocationMoneyChangerPriceController::class, 'getBestUsdSale']);
+        Route::get('/money-changers/all-best-usd-sales', [LocationMoneyChangerPriceController::class, 'getAllBestUsdSales']);
+        
+        
     });
+
 });
 
-Route::post('/traders', [TraderController::class, 'store'])->name('traders.store');
-Route::put('/traders/{id}', [TraderController::class, 'update'])->name('traders.update');
-Route::delete('/traders/{id}', [TraderController::class, 'destroy'])->name('traders.destroy');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

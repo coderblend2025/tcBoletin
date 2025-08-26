@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { LoaderCircle, Eye, EyeOff } from 'lucide-react';
+import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -27,6 +27,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         password: '',
         remember: false,
     });
+    const [showPassword, setShowPassword] = useState(false);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -61,21 +62,32 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <div className="flex items-center">
                             <Label htmlFor="password">Contraseña</Label>
                             {canResetPassword && (
-                                <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
+                                <TextLink href={route('password.request')} className="ml-auto text-sm cursor-pointer" tabIndex={5}>
                                     ¿Olvidaste tu contraseña?
                                 </TextLink>
                             )}
                         </div>
-                        <Input
-                            id="password"
-                            type="password"
-                            required
-                            tabIndex={2}
-                            autoComplete="current-password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            placeholder="Contraseña"
-                        />
+                        <div className="relative">
+                            <Input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                required
+                                tabIndex={2}
+                                autoComplete="current-password"
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                placeholder="Contraseña"
+                            />
+                            <button
+                                type="button"
+                                tabIndex={-1}
+                                onClick={() => setShowPassword((v) => !v)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none cursor-pointer"
+                                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                            >
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
                         <InputError message={errors.password} />
                     </div>
 

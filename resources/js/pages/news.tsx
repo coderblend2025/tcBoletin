@@ -42,25 +42,36 @@ const News = () => {
     const [articles, setArticles] = useState<Article[]>([]);
 
     useEffect(() => {
-        const bcvData = { compra: 6.86, venta: 6.96 };
-        const binanceData = { compra: 10.5, venta: 11.87 };
-
-        setBcvInfo(`Banco Central de Bolivia: Compra Bs ${bcvData.compra} - Venta Bs ${bcvData.venta}`);
-        setBinanceInfo(
-            `Binance Bs/USDT: Compra Bs ${binanceData.compra} - Venta Bs ${binanceData.venta} (Actualizado a horas 08:00 a.m. - 30/11/2024)`,
-        );
+          const bcvData = { compra: 6.86, venta: 6.96 };
+            const binanceData = { compra: 14.02, venta: 14.02 };
+            const today = new Date().toLocaleDateString('es-BO', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+            });
+            setBcvInfo(`Banco Central de Bolivia: Venta Bs ${bcvData.compra} - Compra Bs ${bcvData.venta} (${today})`);
+            setBinanceInfo(`Binance Bs/USDT: Compra Bs ${binanceData.compra} - Venta Bs ${binanceData.venta} (Actualizado a horas 08:00 a.m. - ${today})`);
 
         const fetchNews = async () => {
-            const apiKey = 'AIzaSyARBxxivrztajUyZBGD3Q0pY9ILy2oF3gA';
-            const cx = 'abc123456789:xyz987654321';
+            // Configura aquí tu API Key y tu Custom Search Engine ID
+            const apiKey = 'TU_API_KEY_REAL'; // <-- Cambia por tu API Key válida
+            const cx = 'TU_CSE_ID_REAL'; // <-- Cambia por tu CSE ID válido
             const query = 'tipo de cambio dólar Bolivia';
 
             try {
                 const response = await fetch(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}`);
                 const data = await response.json();
-                setArticles(data.items || []);
+                if (data.error) {
+                    console.error('Google API error:', data.error.message);
+                    setArticles([]);
+                } else if (!data.items || data.items.length === 0) {
+                    setArticles([]);
+                } else {
+                    setArticles(data.items);
+                }
             } catch (error) {
                 console.error('Error al obtener los datos:', error);
+                setArticles([]);
             }
         };
 
@@ -116,7 +127,7 @@ const News = () => {
                                                 </a>
                                             ))
                                         ) : (
-                                            <p className="text-gray-400">Cargando noticias...</p>
+                                            <p className="text-gray-400">No hay noticias disponibles o la API no respondió.</p>
                                         )}
                                     </div>
                                 </div>

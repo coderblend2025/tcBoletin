@@ -23,7 +23,7 @@ class Plan extends Model
 
     public function getFormattedPriceAttribute()
     {
-        return '$' . number_format($this->price, 2);
+        return 'Bs ' . number_format($this->price, 2);
     }
 
     public function getDurationMonthsAttribute()

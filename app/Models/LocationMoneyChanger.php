@@ -16,4 +16,10 @@ class LocationMoneyChanger extends Model
         'log',
         'status'
     ];
+
+    public function latestPrice()
+    {
+        return $this->hasOne(LocationMoneyChangerPrice::class, 'id_location_money_changer')
+            ->latestOfMany(); // Laravel 8+
+    }
 } 

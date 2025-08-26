@@ -273,153 +273,234 @@ export default function UsersIndex() {
     );
 }
 
+
 function UsersTable({
-    users,
-    currentPage,
-    usersPerPage,
-    openMenuId,
-    setOpenMenuId,
-    onEdit,
-    onDelete,
+  users,
+  currentPage,
+  usersPerPage,
+  openMenuId,
+  setOpenMenuId,
+  onEdit,
+  onDelete,
 }: {
-    users: User[];
-    currentPage: number;
-    usersPerPage: number;
-    openMenuId: string | null;
-    setOpenMenuId: React.Dispatch<React.SetStateAction<string | null>>;
-    onEdit: (user: User) => void;
-    onDelete: (user: User) => void;
+  users: User[];
+  currentPage: number;
+  usersPerPage: number;
+  openMenuId: string | null;
+  setOpenMenuId: React.Dispatch<React.SetStateAction<string | null>>;
+  onEdit: (user: User) => void;
+  onDelete: (user: User) => void;
 }) {
-    const menuRef = useRef<HTMLDivElement | null>(null);
-    const [sortField, setSortField] = useState<string>('name');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sortField, setSortField] = useState<keyof User>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-    const handleSort = (field: string) => {
-        if (sortField === field) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortField(field);
-            setSortDirection('asc');
-        }
-    };
+  const handleSort = (field: keyof User) => {
+    if (sortField === field) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
-    const sortedUsers = [...users].sort((a, b) => {
-        const aValue = a[sortField as keyof User];
-        const bValue = b[sortField as keyof User];
-
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-            return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-        }
-
-        return 0;
+  const sortedUsers = useMemo(() => {
+    const arr = [...users];
+    arr.sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return sortDirection === 'asc'
+          ? aVal.localeCompare(bVal)
+          : bVal.localeCompare(aVal);
+      }
+      return 0;
     });
+    return arr;
+  }, [users, sortField, sortDirection]);
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setOpenMenuId(null);
-            }
-        };
+  const Th = ({ field, label, width }: { field: keyof User; label: string; width?: string }) => (
+    <th
+      className={`px-4 py-3 text-left text-[11px] font-semibold tracking-wider text-gray-600 uppercase select-none ${width ?? ''}`}
+    >
+      <button
+        type="button"
+        onClick={() => handleSort(field)}
+        className="inline-flex items-center gap-1 hover:text-gray-900"
+      >
+        <span>{label}</span>
+        {sortField === field && (
+          <span aria-hidden>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+        )}
+      </button>
+    </th>
+  );
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    return (
-        <div className="mx-auto w-full overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 rounded-md shadow-sm">
-                <thead className="bg-gray-100">
-                    <tr>
-                        <th className="w-[50px] px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">#</th>
-                        <th
-                            className="w-[250px] cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-200"
-                            onClick={() => handleSort('name')}
-                        >
-                            <div className="inline-flex cursor-pointer items-center gap-x-2">
-                                <span>Nombre</span>
-                                {sortField === 'name' && (sortDirection === 'asc' ? <FaAngleUp /> : <FaAngleDown />)}
-                            </div>
-                        </th>
-                        <th
-                            className="cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-200"
-                            onClick={() => handleSort('email')}
-                        >
-                            <div className="inline-flex cursor-pointer items-center gap-x-2">
-                                <span>Email</span>
-                                {sortField === 'email' && (sortDirection === 'asc' ? <FaAngleUp /> : <FaAngleDown />)}
-                            </div>
-                        </th>
-                        <th
-                            className="w-[120px] cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-200"
-                            onClick={() => handleSort('role')}
-                        >
-                            <div className="inline-flex cursor-pointer items-center gap-x-2">
-                                <span>Rol</span>
-                                {sortField === 'role' && (sortDirection === 'asc' ? <FaAngleUp /> : <FaAngleDown />)}
-                            </div>
-                        </th>
-                        <th className="w-[100px] px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                    {sortedUsers.length > 0 ? (
-                        sortedUsers.map((user, index) => (
-                            <tr key={user.id} className="hover:bg-gray-50">
-                                <td className="w-[50px] px-4 py-3 text-left text-sm font-medium text-gray-700">
-                                    {(currentPage - 1) * usersPerPage + index + 1}
-                                </td>
-                                <td className="w-[250px] px-4 py-3 text-left text-sm font-medium text-gray-700">{user.name}</td>
-                                <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-700">{user.email}</td>
-                                <td className="w-[120px] px-4 py-3 text-left text-sm text-gray-700">{user.role || 'Sin rol'}</td>
-                                <td className="relative w-[100px] px-4 py-3 text-right text-sm font-medium">
-                                    <button
-                                        onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
-                                        className="text-gray-400 hover:text-gray-600"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        </svg>
-                                    </button>
-
-                                    {openMenuId === user.id && (
-                                        <div
-                                            ref={menuRef}
-                                            className="absolute right-0 z-50 mt-2 w-32 rounded border border-gray-200 bg-white shadow-md"
-                                        >
-                                            <button
-                                                onClick={() => {
-                                                    onEdit(user);
-                                                    setOpenMenuId(null);
-                                                }}
-                                                className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    onDelete(user);
-                                                    setOpenMenuId(null);
-                                                }}
-                                                className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </div>
-                                    )}
-                                </td>
-                            </tr>
-                        ))
+  return (
+    <div className="mx-auto w-full overflow-x-auto overflow-y-visible">
+      <table className="min-w-full divide-y divide-gray-200 rounded-md shadow-sm">
+        <thead className="bg-gray-50 sticky top-0">
+          <tr>
+            <th className="w-[60px] px-4 py-3 text-left text-[11px] font-semibold tracking-wider text-gray-600 uppercase">#</th>
+            <Th field="name" label="Nombre" width="w-[220px]" />
+            <Th field="email" label="Email" width="w-[280px]" />
+            <Th field="role" label="Rol" width="w-[180px]" />
+            <th className="px-4 py-3 text-right text-[11px] font-semibold text-gray-600 uppercase tracking-wider w-[140px]">Acciones</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100 bg-white">
+          {sortedUsers.length > 0 ? (
+            sortedUsers.map((user, index) => {
+              const rowNumber = (currentPage - 1) * usersPerPage + index + 1;
+              const isOpen = openMenuId === user.id;
+              return (
+                <tr key={user.id} className="odd:bg-white even:bg-gray-50/50 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-700">{rowNumber}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{user.name}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{user.email}</td>
+                  <td className="px-4 py-3">
+                    {user.role ? (
+                      <span className="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-200">
+                        {user.role}
+                      </span>
                     ) : (
-                        <tr>
-                            <td colSpan={5} className="px-6 py-4 text-center text-sm whitespace-nowrap text-gray-500">
-                                No se encontraron usuarios
-                            </td>
-                        </tr>
+                      <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200">
+                        Sin rol
+                      </span>
                     )}
-                </tbody>
-            </table>
-        </div>
-    );
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="relative inline-block text-left">
+                      <button
+                        ref={el => { buttonRefs.current[user.id] = el; }}
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-expanded={isOpen}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(isOpen ? null : user.id);
+                        }}
+                        className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        Acciones
+                        <FaAngleDown className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {isOpen && (
+                        <PortalMenu
+                          anchorEl={buttonRefs.current[user.id] ?? null}
+                          onClose={() => setOpenMenuId(null)}
+                          align="right"
+                          width={192}
+                        >
+                          <button
+                            role="menuitem"
+                            onClick={() => { onEdit(user); setOpenMenuId(null); }}
+                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          >
+                            ✏️ Editar
+                          </button>
+                          <button
+                            role="menuitem"
+                            onClick={() => { onDelete(user); setOpenMenuId(null); }}
+                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-rose-700 hover:bg-rose-50"
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </PortalMenu>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan={5} className="px-6 py-6 text-center text-sm text-gray-500">
+                No se encontraron usuarios
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+
+
+import { useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
+
+function PortalMenu({
+  anchorEl,
+  onClose,
+  children,
+  align = 'right', // 'left' | 'right'
+  gap = 8,         // separación vertical en px
+  width = 224      // ancho del menú (Tailwind w-56 ≈ 224px)
+}: {
+  anchorEl: HTMLElement | null;
+  onClose: () => void;
+  children: React.ReactNode;
+  align?: 'left' | 'right';
+  gap?: number;
+  width?: number;
+}) {
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  // Calcula y actualiza la posición (fixed) respecto al botón
+  const updatePosition = () => {
+    if (!anchorEl) return;
+    const r = anchorEl.getBoundingClientRect();
+    let left = align === 'right' ? r.right - width : r.left;
+    // corrige si se sale del viewport
+    left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+    const top = Math.min(r.bottom + gap, window.innerHeight - 8); // no se salga por abajo
+    setPos({ top, left });
+  };
+
+  useLayoutEffect(() => {
+    updatePosition();
+    // Reposiciona al hacer scroll/resize o cuando cambia el layout
+    const onScroll = () => updatePosition();
+    const onResize = () => updatePosition();
+    window.addEventListener('scroll', onScroll, true);  // true: captura scrolls dentro de contenedores
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [anchorEl]);
+
+  // Cerrar con click fuera o Esc
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node) && anchorEl && !anchorEl.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose, anchorEl]);
+
+  // No renderizar si no hay ancla
+  if (!anchorEl) return null;
+
+  return createPortal(
+    <div
+      ref={menuRef}
+      style={{ position: 'fixed', top: pos.top, left: pos.left, width }}
+      className="z-[9999] origin-top rounded-lg bg-white shadow-lg ring-1 ring-black/10 overflow-hidden"
+      role="menu"
+    >
+      {children}
+    </div>,
+    document.body
+  );
 }

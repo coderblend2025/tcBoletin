@@ -133,7 +133,7 @@ export default function SearchControlsTraders({
     };
 
     const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: 'AIzaSyBT0JHPi2LOwQYONtCSJGt4zH_WqJsgJD0',
+        googleMapsApiKey: 'AIzaSyDYuMfW-2HoL1ZvqW4RoCANUKPuHfux3TY',
         libraries,
     });
 
@@ -190,7 +190,7 @@ export default function SearchControlsTraders({
 
                 // Get address from coordinates
                 const geocoder = new window.google.maps.Geocoder();
-                geocoder.geocode({ location: position }, (results: GeocoderResult[], status: google.maps.GeocoderStatus) => {
+                geocoder.geocode({ location: position }, (results: GeocoderResult[] | null, status: google.maps.GeocoderStatus) => {
                     if (status === 'OK' && results && results.length > 0) {
                         const formatted = formatDirections(results);
                         setData((data) => ({

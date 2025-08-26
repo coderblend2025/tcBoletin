@@ -3,7 +3,7 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, BrickWall, Briefcase, BriefcaseBusiness, Home, Menu, ShoppingBag, Users, X } from 'lucide-react';
+import { BookOpen, BrickWall, Briefcase, BriefcaseBusiness, Home, Menu, ShoppingBag, Users, X, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 
 const colorPrimario = '#001276';
@@ -21,11 +21,6 @@ const getNavItemsByRole = (roles: string[]) => {
     if (roles.includes('admin')) {
         items.push(
             {
-                title: 'Servicios',
-                href: '/services',
-                icon: ShoppingBag,
-            },
-            {
                 title: 'Subscripciones',
                 href: '/subscriptions',
                 icon: BookOpen,
@@ -37,7 +32,7 @@ const getNavItemsByRole = (roles: string[]) => {
             },
             {
                 title: 'Pagos',
-                href: '/users',
+                href: '/pagos',
                 icon: Users,
             },
             {
@@ -57,14 +52,31 @@ const getNavItemsByRole = (roles: string[]) => {
     if (roles.includes('customer')) {
         items.push(
             {
-                title: 'Servicios',
-                href: '/services',
-                icon: ShoppingBag,
-            },
-            {
                 title: 'Mis Subscripciones',
                 href: '/my-subscriptions',
                 icon: BookOpen,
+            }
+        );
+    }
+
+    // Menús para invitados (guest) - Solo Punto de Cambio
+    if (roles.includes('guest')) {
+        items.push(
+            {
+                title: 'Punto de Cambio',
+                href: '/traders',
+                icon: Briefcase,
+            }
+        );
+    }
+
+    // Menús para consultores - Dashboard Admin y Punto de Cambio
+    if (roles.includes('consultor')) {
+        items.push(
+            {
+                title: 'Punto de Cambio',
+                href: '/traders',
+                icon: Briefcase,
             }
         );
     }

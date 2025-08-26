@@ -61,16 +61,37 @@ class TraderController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:location_money_changer',
+            'code' => 'required|string|max:255',
             'ubication' => 'required|string|max:255',
             'lat' => 'required|string',
             'log' => 'required|string',
         ]);
 
+        // Generar el código base con prefijo TC-
+        $baseCode = 'TC-' . $validated['code'];
+        $code = $baseCode;
+        $ubication = $validated['ubication'];
+
+        $suffix = 2;
+
+        // Buscar si ya existe un code igual con la misma ubicación
+        $count = LocationMoneyChanger::where('ubication_name', $ubication)
+                 ->count();
+
+        if ($count > 0) {
+            // Si ya existe, incrementar el sufijo
+            $code = 'TC-' . ($count + 1) . '-' . $validated['code'];
+        }else {
+            $suffix = 1; // Si no existe, iniciar con sufijo 1
+             $code = 'TC-' . $validated['code'];
+        }
+     
+        
+        // Crear el trader
         $trader = LocationMoneyChanger::create([
             'name' => $validated['name'],
-            'code' => $validated['code'],
-            'ubication_name' => $validated['ubication'],
+            'code' => $code,
+            'ubication_name' => $ubication,
             'lan' => $validated['lat'],
             'log' => $validated['log'],
             'status' => true
@@ -90,6 +111,18 @@ class TraderController extends Controller
             'lat' => 'required|string',
             'log' => 'required|string',
         ]);
+
+
+        $count = LocationMoneyChanger::where('ubication_name', $ubication)
+                 ->count();
+
+        if ($count > 0) {
+            // Si ya existe, incrementar el sufijo
+            $code = 'TC-' . ($count + 1) . '-' . $validated['code'];
+        }else {
+            $suffix = 1; // Si no existe, iniciar con sufijo 1
+             $code = 'TC-' . $validated['code'];
+        }
 
         $trader->update([
             'name' => $validated['name'],

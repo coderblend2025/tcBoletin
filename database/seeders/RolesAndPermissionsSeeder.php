@@ -25,6 +25,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage traders',
             'view services',
             'view own subscriptions',
+            'view traders', // Nuevo permiso para ver punto de cambio
+            'view admin dashboard', // Nuevo permiso para ver dashboard administrador
         ];
 
         foreach ($permissions as $permission) {
@@ -35,15 +37,24 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $guestRole = Role::firstOrCreate(['name' => 'guest']);
         $customerRole = Role::firstOrCreate(['name' => 'customer']);
+        $consultorRole = Role::firstOrCreate(['name' => 'consultor']);
 
         // Asignar permisos a roles
         $adminRole->syncPermissions(Permission::all());
-        $guestRole->syncPermissions(['view dashboard']);
+        $guestRole->syncPermissions([
+            'view dashboard',
+            'view traders', // Solo dashboard y punto de cambio para guest
+        ]);
         $customerRole->syncPermissions([
             'view dashboard',
             'edit profile',
             'view services',
             'view own subscriptions',
+        ]);
+        $consultorRole->syncPermissions([
+            'view dashboard',
+            'view traders', // Acceso al punto de cambio
+            'view admin dashboard', // Acceso al dashboard administrador
         ]);
 
         // Crear usuarios y asignar roles
@@ -76,5 +87,15 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
         $customer->assignRole($customerRole);
+
+        $consultor = User::firstOrCreate(
+            ['email' => 'consultor@example.com'],
+            [
+                'name' => 'Consultor User',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $consultor->assignRole($consultorRole);
     }
 }

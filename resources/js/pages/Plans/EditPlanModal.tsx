@@ -1,7 +1,8 @@
 import { Dialog } from '@headlessui/react';
 import { router } from '@inertiajs/react';
 import { FormEvent, useState, useEffect } from 'react';
-import { FiX, FiDollarSign, FiCalendar, FiInfo, FiFileText, FiCheckCircle, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FiX, FiCalendar, FiInfo, FiFileText, FiCheckCircle, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FaCoins } from 'react-icons/fa';
 
 interface Plan {
     id: number;
@@ -85,6 +86,7 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
 
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                     
+                    {/* Nombre */}
                     <div className="space-y-1">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <FiInfo className="mr-2 text-indigo-500" />
@@ -92,98 +94,97 @@ export default function EditModal({ plan, isOpen, onClose, errors }: EditModalPr
                         </label>
                         <input
                             type="text"
+                            placeholder="Ej. Plan Premium"
                             value={form.name}
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
-                            className={`mt-1 block w-full rounded-md border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+                            className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
                                 errors?.name ? 'border-red-500' : 'border-gray-300'
                             }`}
+                            aria-invalid={!!errors?.name}
+                            aria-describedby={errors?.name ? "name-error" : undefined}
                             required
                         />
                         {errors?.name && (
-                            <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                            <p id="name-error" className="mt-1 text-sm text-red-600">{errors.name}</p>
                         )}
                     </div>
 
-                    <div className="space-y-1">
-                        <label className="flex items-center text-sm font-medium text-gray-700">
-                            <FiFileText className="mr-2 text-indigo-500" />
-                            Descripción
-                        </label>
-                        <textarea
-                            value={form.description}
-                            onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            rows={3}
-                            className={`mt-1 block w-full rounded-md border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
-                                errors?.description ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                        />
-                        {errors?.description && (
-                            <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-                        )}
-                    </div>
+                        {/* Descripción */}
+                        <div className="space-y-1">
+                            <label className="flex items-center text-sm font-medium text-gray-700">
+                                <FiFileText className="mr-2 text-indigo-500" />
+                                Descripción
+                            </label>
+                            <textarea
+                                placeholder="Descripción opcional del plan..."
+                                value={form.description}
+                                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                rows={3}
+                                className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+                                    errors?.description ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                                aria-invalid={!!errors?.description}
+                                aria-describedby={errors?.description ? "desc-error" : undefined}
+                            />
+                            {errors?.description && (
+                                <p id="desc-error" className="mt-1 text-sm text-red-600">{errors.description}</p>
+                            )}
+                        </div>
 
-                    <div className="space-y-1">
-                        <label className="flex items-center text-sm font-medium text-gray-700">
-                            <FiDollarSign className="mr-2 text-indigo-500" />
-                            Precio *
-                        </label>
-                        <div className="relative rounded-md shadow-sm">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span className="text-gray-500">$</span>
+                        {/* Precio */}
+                        <div className="space-y-1">
+                            <label className="flex items-center text-sm font-medium text-gray-700">
+                                <FaCoins className="mr-2 text-indigo-500" />
+                                Precio *
+                            </label>
+                            <div className="relative rounded-md shadow-sm">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-gray-500">Bs</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    value={form.price}
+                                    onChange={(e) => setForm({ ...form, price: e.target.value })}
+                                    className={`block w-full pl-7 pr-12 rounded-md border px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+                                        errors?.price ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    aria-invalid={!!errors?.price}
+                                    aria-describedby={errors?.price ? "price-error" : undefined}
+                                    required
+                                />
                             </div>
+                            {errors?.price && (
+                                <p id="price-error" className="mt-1 text-sm text-red-600">{errors.price}</p>
+                            )}
+                        </div>
+
+                        {/* Duración */}
+                        <div className="space-y-1">
+                            <label className="flex items-center text-sm font-medium text-gray-700">
+                                <FiCalendar className="mr-2 text-indigo-500" />
+                                Duración (días) *
+                            </label>
                             <input
                                 type="number"
-                                step="0.01"
-                                min="0"
-                                value={form.price}
-                                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                                className={`block w-full pl-7 pr-12 rounded-md border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
-                                    errors?.price ? 'border-red-500' : 'border-gray-300'
+                                min="1"
+                                placeholder="Ej. 30"
+                                value={form.duration_in_days}
+                                onChange={(e) => setForm({ ...form, duration_in_days: e.target.value })}
+                                className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+                                    errors?.duration_in_days ? 'border-red-500' : 'border-gray-300'
                                 }`}
+                                aria-invalid={!!errors?.duration_in_days}
+                                aria-describedby={errors?.duration_in_days ? "duration-error" : undefined}
                                 required
                             />
-                        </div>
-                        {errors?.price && (
-                            <p className="mt-1 text-sm text-red-600">{errors.price}</p>
-                        )}
-                    </div>
-
-                    <div className="space-y-1">
-                        <label className="flex items-center text-sm font-medium text-gray-700">
-                            <FiCalendar className="mr-2 text-indigo-500" />
-                            Duración (días) *
-                        </label>
-                        <input
-                            type="number"
-                            min="1"
-                            value={form.duration_in_days}
-                            onChange={(e) => setForm({ ...form, duration_in_days: e.target.value })}
-                            className={`mt-1 block w-full rounded-md border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
-                                errors?.duration_in_days ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            required
-                        />
-                        {errors?.duration_in_days && (
-                            <p className="mt-1 text-sm text-red-600">{errors.duration_in_days}</p>
-                        )}
-                    </div>
-
-                    <div className="flex items-center pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setForm({ ...form, is_active: !form.is_active })}
-                            className="relative inline-flex items-center mr-2"
-                        >
-                            {form.is_active ? (
-                                <FiToggleRight className="h-6 w-6 text-indigo-600" />
-                            ) : (
-                                <FiToggleLeft className="h-6 w-6 text-gray-400" />
+                            {errors?.duration_in_days && (
+                                <p id="duration-error" className="mt-1 text-sm text-red-600">{errors.duration_in_days}</p>
                             )}
-                        </button>
-                        <label className="block text-sm text-gray-700">
-                            {form.is_active ? 'Activo' : 'Inactivo'}
-                        </label>
-                    </div>
+                        </div>
+
 
                     <div className="flex justify-end space-x-3 pt-4">
                         <button
