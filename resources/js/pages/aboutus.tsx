@@ -24,7 +24,7 @@ export default function AboutUs() {
         };
 
         fetchExchangeRates();
-    }, [propBcvInfo, propBinanceInfo]);
+    }, []);
 
     return (
         <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>

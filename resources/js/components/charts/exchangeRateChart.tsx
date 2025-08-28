@@ -132,11 +132,11 @@ export default function ExchangeRateChart() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <div className="flex flex-wrap gap-4 justify-end mb-2">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 justify-end mb-2 w-full">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <span className="text-blue-800 font-semibold">Desde:</span>
           <select
-            className="px-2 py-1 text-base text-blue-800 font-semibold bg-white rounded shadow"
+            className="px-2 py-1 text-xs sm:text-base text-blue-800 font-semibold bg-white rounded shadow w-full sm:w-auto focus:ring-2 focus:ring-blue-200"
             value={startMonth}
             onChange={e => setStartMonth(e.target.value)}
           >
@@ -145,7 +145,7 @@ export default function ExchangeRateChart() {
             ))}
           </select>
           <select
-            className="px-2 py-1 text-base text-blue-800 font-semibold bg-white rounded shadow"
+            className="px-2 py-1 text-xs sm:text-base text-blue-800 font-semibold bg-white rounded shadow w-full sm:w-auto focus:ring-2 focus:ring-blue-200"
             value={startYear}
             onChange={e => setStartYear(e.target.value)}
           >
@@ -154,10 +154,10 @@ export default function ExchangeRateChart() {
             ))}
           </select>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <span className="text-blue-800 font-semibold">Hasta:</span>
           <select
-            className="px-2 py-1 text-base text-blue-800 font-semibold bg-white rounded shadow"
+            className="px-2 py-1 text-xs sm:text-base text-blue-800 font-semibold bg-white rounded shadow w-full sm:w-auto focus:ring-2 focus:ring-blue-200"
             value={endMonth}
             onChange={e => setEndMonth(e.target.value)}
           >
@@ -166,7 +166,7 @@ export default function ExchangeRateChart() {
             ))}
           </select>
           <select
-            className="px-2 py-1 text-base text-blue-800 font-semibold bg-white rounded shadow"
+            className="px-2 py-1 text-xs sm:text-base text-blue-800 font-semibold bg-white rounded shadow w-full sm:w-auto focus:ring-2 focus:ring-blue-200"
             value={endYear}
             onChange={e => setEndYear(e.target.value)}
           >
@@ -179,12 +179,14 @@ export default function ExchangeRateChart() {
 
       <div className="relative w-full overflow-x-auto">
         {monthlyLabels.length === 0 ? (
-          <div className="flex items-center justify-center h-[500px] text-red-700 font-bold text-lg">No hay datos para el rango seleccionado.</div>
+          <div className="flex items-center justify-center h-[220px] sm:h-[500px] text-red-700 font-bold text-base sm:text-lg">No hay datos para el rango seleccionado.</div>
         ) : (
-          <canvas ref={chartRef} className="w-full h-[500px]" />
+          <div className="w-full min-w-[220px] sm:min-w-0">
+            <canvas ref={chartRef} className="w-full h-[220px] sm:h-[500px]" />
+          </div>
         )}
       </div>
-      <p className="mt-4 text-base text-gray-500 text-right italic">
+      <p className="mt-2 sm:mt-4 text-xs sm:text-base text-gray-500 text-right italic">
         Fuente: Binance (USDT/BOB)
       </p>
     </motion.div>
