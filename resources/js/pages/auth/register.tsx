@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState, useEffect } from 'react';
 import { FaCcVisa, FaCcMastercard, FaCcAmex } from 'react-icons/fa';
 
 import InputError from '@/components/input-error';
@@ -25,6 +25,8 @@ type RegisterForm = {
 export default function Register() {
     const [showModal, setShowModal] = useState(true);
     const [step, setStep] = useState(1);
+    const [paymentsEnabled, setPaymentsEnabled] = useState(true);
+    const [loadingPayments, setLoadingPayments] = useState(true);
 
     const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
@@ -36,6 +38,16 @@ export default function Register() {
         card_cvv: '',
         card_name: '',
     });
+
+    useEffect(() => {
+        fetch('/payment/is-enabled')
+            .then(res => res.json())
+            .then(data => {
+                setPaymentsEnabled(!!data.enabled);
+                setLoadingPayments(false);
+            })
+            .catch(() => setLoadingPayments(false));
+    }, []);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -70,6 +82,7 @@ export default function Register() {
                 {step === 1 ? (
                     <>
                         <div className="grid gap-6">
+                            {/* ...campos de registro normales... */}
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Nombre</Label>
                                 <Input
@@ -86,7 +99,7 @@ export default function Register() {
                                 />
                                 <InputError message={errors.name} className="mt-2" />
                             </div>
-
+                            {/* ...otros campos... */}
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Correo electrónico</Label>
                                 <Input
@@ -102,7 +115,6 @@ export default function Register() {
                                 />
                                 <InputError message={errors.email} />
                             </div>
-
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Contraseña</Label>
                                 <Input
@@ -118,7 +130,6 @@ export default function Register() {
                                 />
                                 <InputError message={errors.password} />
                             </div>
-
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">Confirmar contraseña</Label>
                                 <Input
@@ -134,100 +145,111 @@ export default function Register() {
                                 />
                                 <InputError message={errors.password_confirmation} />
                             </div>
-
                             <Button style={{ backgroundColor: '#03CF48' }} type="submit" className="mt-2 w-full" disabled={processing}>
                                 Continuar
                             </Button>
                         </div>
-
                         <div className="text-muted-foreground text-center text-sm">
                             ¿Ya tienes una cuenta? <TextLink href={route('login')}>Iniciar sesión</TextLink>
                         </div>
                     </>
                 ) : (
                     <>
-                        <div className="grid gap-6">
-
-                            <div className="flex items-center space-x-2 mb-4">
-                                <FaCcVisa className="text-3xl text-blue-600" />
-                                <FaCcMastercard className="text-3xl text-red-600" />
-                                <FaCcAmex className="text-3xl text-indigo-600" />
-                            </div>
-
+                        {loadingPayments ? (
+                            <div className="text-center text-gray-500 py-8">Verificando pagos...</div>
+                        ) : paymentsEnabled ? (
                             <div className="grid gap-6">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="card_number">Número de tarjeta</Label>
-                                    <Input
-                                        id="card_number"
-                                        type="text"
-                                        required
-                                        placeholder="•••• •••• •••• ••••"
-                                        value={data.card_number}
-                                        onChange={(e) => setData('card_number', e.target.value)}
-                                        className="p-3 text-gray-800"
-                                    />
+                                <div className="flex items-center space-x-2 mb-4">
+                                    <FaCcVisa className="text-3xl text-blue-600" />
+                                    <FaCcMastercard className="text-3xl text-red-600" />
+                                    <FaCcAmex className="text-3xl text-indigo-600" />
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-6">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="card_expiry">Fecha de vencimiento</Label>
+                                        <Label htmlFor="card_number">Número de tarjeta</Label>
                                         <Input
-                                            id="card_expiry"
+                                            id="card_number"
                                             type="text"
                                             required
-                                            placeholder="MM/AA"
-                                            value={data.card_expiry}
-                                            onChange={(e) => setData('card_expiry', e.target.value)}
+                                            placeholder="•••• •••• •••• ••••"
+                                            value={data.card_number}
+                                            onChange={(e) => setData('card_number', e.target.value)}
                                             className="p-3 text-gray-800"
                                         />
                                     </div>
-
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="card_expiry">Fecha de vencimiento</Label>
+                                            <Input
+                                                id="card_expiry"
+                                                type="text"
+                                                required
+                                                placeholder="MM/AA"
+                                                value={data.card_expiry}
+                                                onChange={(e) => setData('card_expiry', e.target.value)}
+                                                className="p-3 text-gray-800"
+                                            />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="card_cvv">CVV</Label>
+                                            <Input
+                                                id="card_cvv"
+                                                type="text"
+                                                required
+                                                placeholder="123"
+                                                value={data.card_cvv}
+                                                onChange={(e) => setData('card_cvv', e.target.value)}
+                                                className="p-3 text-gray-800"
+                                            />
+                                        </div>
+                                    </div>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="card_cvv">CVV</Label>
+                                        <Label htmlFor="card_name">Nombre en la tarjeta</Label>
                                         <Input
-                                            id="card_cvv"
+                                            id="card_name"
                                             type="text"
                                             required
-                                            placeholder="123"
-                                            value={data.card_cvv}
-                                            onChange={(e) => setData('card_cvv', e.target.value)}
+                                            placeholder="Nombre como aparece en la tarjeta"
+                                            value={data.card_name}
+                                            onChange={(e) => setData('card_name', e.target.value)}
                                             className="p-3 text-gray-800"
                                         />
                                     </div>
+                                    <div className="text-sm text-center text-gray-600">
+                                        USD 7,99 al mes - <span className="font-semibold">Premium</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 leading-5 text-justify">
+                                        Al hacer clic en el botón <strong>«Iniciar membresía»</strong>, aceptas nuestros <span className="underline">Términos de uso</span> y nuestra <span className="underline">Declaración de privacidad</span>, y declaras que tienes más de 18 años. Asimismo, entiendes que Netflix continuará tu membresía a menos que la canceles, te facturará el cargo mensual (actualmente de USD 7,99 + impuestos aplicables) y puedes cancelarla en cualquier momento desde tu cuenta.
+                                    </p>
+                                    <div className="mt-4 flex justify-between">
+                                        <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
+                                            Volver
+                                        </Button>
+                                        <Button type="submit" disabled={processing}>
+                                            {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                            Crear cuenta / Iniciar Membresía
+                                        </Button>
+                                    </div>
                                 </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="card_name">Nombre en la tarjeta</Label>
-                                    <Input
-                                        id="card_name"
-                                        type="text"
-                                        required
-                                        placeholder="Nombre como aparece en la tarjeta"
-                                        value={data.card_name}
-                                        onChange={(e) => setData('card_name', e.target.value)}
-                                        className="p-3 text-gray-800"
-                                    />
+                            </div>
+                        ) : (
+                            <div className="grid gap-6">
+                                <div className="text-center py-4">
+                                    <div className="text-2xl text-red-500 mb-2">⚠️</div>
+                                    <div className="text-lg font-bold text-red-700 mb-2">Pagos deshabilitados</div>
+                                    <p className="text-gray-600 text-sm mb-2">Puedes registrarte sin introducir datos de tarjeta.</p>
                                 </div>
-
-                                <div className="text-sm text-center text-gray-600">
-                                    USD 7,99 al mes - <span className="font-semibold">Premium</span>
-                                </div>
-
-                                <p className="text-xs text-gray-500 leading-5 text-justify">
-                                    Al hacer clic en el botón <strong>«Iniciar membresía»</strong>, aceptas nuestros <span className="underline">Términos de uso</span> y nuestra <span className="underline">Declaración de privacidad</span>, y declaras que tienes más de 18 años. Asimismo, entiendes que Netflix continuará tu membresía a menos que la canceles, te facturará el cargo mensual (actualmente de USD 7,99 + impuestos aplicables) y puedes cancelarla en cualquier momento desde tu cuenta.
-                                </p>
-
                                 <div className="mt-4 flex justify-between">
                                     <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={processing}>
                                         Volver
                                     </Button>
                                     <Button type="submit" disabled={processing}>
                                         {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                        Crear cuenta / Iniciar Membresía
+                                        Crear cuenta
                                     </Button>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </>
                 )}
             </form>

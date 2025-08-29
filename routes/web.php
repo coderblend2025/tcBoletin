@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SubcriptionController;
 use App\Http\Controllers\LocationMoneyChangerPriceController;
 use App\Http\Controllers\DolarRateController;
+use App\Http\Controllers\PaymentController;
 use App\Models\Plan;
 
  Route::get('/scrape/dolar-bolivia-hoy', DolarRateController::class);
@@ -55,10 +56,15 @@ Route::get('/infoSpeculation', function () {
 })->name('infoSpeculation');
 
 
+Route::get('/payment/is-enabled', [PaymentController::class, 'isEnabled']);
+Route::post('/payment/set-enabled', [PaymentController::class, 'setEnabled']);
+
+
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
     
-   
+    Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
+
     Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
     Route::post('/traders', [TraderController::class, 'store'])->name('traders.store');
     Route::put('/traders/{id}', [TraderController::class, 'update'])->name('traders.update');
@@ -121,3 +127,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+
+
+

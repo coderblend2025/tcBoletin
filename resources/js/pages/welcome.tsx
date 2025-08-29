@@ -51,7 +51,7 @@ export default function Welcome() {
   useEffect(() => {
     const fetchExchangeRates = async () => {
       const bcvData = { compra: 6.86, venta: 6.96 };
-      const binanceData = { compra: 14.02, venta: 14.02 };
+      const binanceData = {  compra: 13.16, venta: 11.97 };
       const today = new Date().toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
       setBcvInfo(`Banco Central de Bolivia: Venta Bs ${bcvData.compra} - Compra Bs ${bcvData.venta} (${today})`);
       setBinanceInfo(`Binance Bs/USDT: Compra Bs ${binanceData.compra} - Venta Bs ${binanceData.venta} (Actualizado a horas 08:00 a.m. - ${today})`);

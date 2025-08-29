@@ -34,7 +34,7 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
   const fetchExchangeRates = () => {
     if (!propBcvInfo || !propBinanceInfo) {
       const bcvData: ExchangeRate = { buy: 6.86, sell: 6.96 };
-      const binanceData: ExchangeRate = { buy: 14.02, sell: 14.02 };
+      const binanceData: ExchangeRate = { buy: 13.16, sell: 11.97 };
       const currentDate = new Date().toLocaleDateString('es-BO',{ day:'2-digit',month:'2-digit',year:'numeric' });
       setBcvInfo(`Banco Central de Bolivia: Compra Bs ${bcvData.buy} • Venta Bs ${bcvData.sell}`);
       setBinanceInfo(`Binance Bs/USDT: Compra Bs ${binanceData.buy} • Venta Bs ${binanceData.sell} (08:00 • ${currentDate})`);

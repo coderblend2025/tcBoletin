@@ -23,7 +23,7 @@ export default function Work() {
     useEffect(() => {
         const fetchExchangeRates = async () => {
             const bcvData = { compra: 6.86, venta: 6.96 };
-            const binanceData = { compra: 10.50, venta: 11.87 };
+            const binanceData = { compra: 13.16, venta: 11.97};
             setBcvInfo(`Banco Central de Bolivia: Compra ${bcvData.compra} - Venta ${bcvData.venta}`);
             setBinanceInfo(`Binance Bs/USDT: Compra ${binanceData.compra} - Venta ${binanceData.venta} (Actualizado a horas 08:00 a.m. - 30/11/2024)`);
         };

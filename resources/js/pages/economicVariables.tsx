@@ -27,7 +27,7 @@ const EconomicVariables = () => {
     const fetchExchangeRates = () => {
           // Datos simulados - en producción deberían venir de una API
           const bcvData: ExchangeRate = { buy: 6.86, sell: 6.96 };
-          const binanceData: ExchangeRate = { buy: 14.02, sell: 14.02 };
+          const binanceData: ExchangeRate = { buy: 13.16, sell: 11.97 };
           const currentDate = new Date().toLocaleDateString('es-BO', {
             day: '2-digit',
             month: '2-digit',

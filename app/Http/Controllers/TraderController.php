@@ -104,33 +104,51 @@ class TraderController extends Controller
     {
         $trader = LocationMoneyChanger::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:location_money_changer,code,' . $id,
-            'ubication' => 'required|string|max:255',
-            'lat' => 'required|string',
-            'log' => 'required|string',
-        ]);
+        // Solo valida los campos enviados y no vacíos
+        $rules = [];
+        $fields = ['name', 'code', 'ubication', 'lat', 'log'];
+        foreach ($fields as $field) {
+            if ($request->has($field) && $request->$field !== null && $request->$field !== '') {
+                if ($field === 'code') {
+                    $rules[$field] = 'string|max:255|unique:location_money_changer,code,' . $id;
+                } elseif ($field === 'ubication') {
+                    $rules[$field] = 'string|max:255';
+                } else {
+                    $rules[$field] = 'string|max:255';
+                }
+            }
+        }
+        $validated = $request->validate($rules);
 
-
-        $count = LocationMoneyChanger::where('ubication_name', $ubication)
-                 ->count();
-
-        if ($count > 0) {
-            // Si ya existe, incrementar el sufijo
-            $code = 'TC-' . ($count + 1) . '-' . $validated['code'];
-        }else {
-            $suffix = 1; // Si no existe, iniciar con sufijo 1
-             $code = 'TC-' . $validated['code'];
+        $updateData = [];
+        // Solo actualiza los campos enviados y no vacíos
+        foreach ($fields as $field) {
+            if (isset($validated[$field]) && $validated[$field] !== null && $validated[$field] !== '') {
+                if ($field === 'ubication') {
+                    // Validación de ubicación solo si se envía
+                    $ubication = $validated['ubication'];
+                    $count = LocationMoneyChanger::where('ubication_name', $ubication)->count();
+                    if ($count > 0) {
+                        $updateData['code'] = 'TC-' . ($count + 1) . '-' . ($validated['code'] ?? $trader->code);
+                    } else {
+                        $updateData['code'] = 'TC-' . ($validated['code'] ?? $trader->code);
+                    }
+                    $updateData['ubication_name'] = $ubication;
+                } elseif ($field === 'code' && !isset($updateData['code'])) {
+                    $updateData['code'] = $validated['code'];
+                } elseif ($field === 'name') {
+                    $updateData['name'] = $validated['name'];
+                } elseif ($field === 'lat') {
+                    $updateData['lan'] = $validated['lat'];
+                } elseif ($field === 'log') {
+                    $updateData['log'] = $validated['log'];
+                }
+            }
         }
 
-        $trader->update([
-            'name' => $validated['name'],
-            'code' => $validated['code'],
-            'ubication_name' => $validated['ubication'],
-            'lan' => $validated['lat'],
-            'log' => $validated['log'],
-        ]);
+        if (!empty($updateData)) {
+            $trader->update($updateData);
+        }
 
         return back()->with('success', 'Trader updated successfully');
     }
