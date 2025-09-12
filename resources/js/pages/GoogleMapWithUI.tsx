@@ -33,7 +33,7 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
 
   const fetchExchangeRates = () => {
     if (!propBcvInfo || !propBinanceInfo) {
-      const bcvData: ExchangeRate = { buy: 6.86, sell: 6.96 };
+      const bcvData: ExchangeRate = { buy: 6.96, sell: 6.86 };
       const binanceData: ExchangeRate = { buy: 13.16, sell: 11.97 };
       const currentDate = new Date().toLocaleDateString('es-BO',{ day:'2-digit',month:'2-digit',year:'numeric' });
       setBcvInfo(`Banco Central de Bolivia: Compra Bs ${bcvData.buy} • Venta Bs ${bcvData.sell}`);
@@ -155,7 +155,7 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
       />
 
       {/* Barra de búsqueda */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-full px-3 sm:px-4 max-w-[720px] md:top-6">
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-full px-3 sm:px-4 max-w-[1050px] md:top-2">
         <div
           className="flex rounded-xl shadow-xl backdrop-blur-lg overflow-hidden ring-1"
           style={{ background: 'rgba(255,255,255,0.96)', borderColor: `${PC.azul}33`, boxShadow: '0 8px 24px rgba(0,0,0,.06)' }}
@@ -180,7 +180,7 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
             className="text-[12px] sm:text-sm rounded-lg px-3 py-2 truncate border"
             style={{ color: PC.azulSec, background: 'rgba(255,255,255,0.96)', borderColor: `${PC.azul}22` }}
           >
-            <span className="mr-1">🏛️</span>{bcvInfo || '—'}
+            <span className="mr-1">🏛️</span> {bcvInfo || '—'}
           </p>
           <p
             className="text-[12px] sm:text-sm rounded-lg px-3 py-2 truncate border"
@@ -334,7 +334,7 @@ function PointsPanel({ locations, map, compact = false }: { locations: any[]; ma
         <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow border" style={{ background: PC.azul, borderColor: PC.azulSec }}>
           <img src="/pictures/location.png" alt="Punto de cambio" className="w-7 h-7 object-contain drop-shadow" />
         </div>
-        <h4 className="font-extrabold text-sm sm:text-base" style={{ color: PC.azulSec }}>Puntos de Cambio</h4>
+        <h4 className="font-extrabold text-sm sm:text-base" style={{ color: PC.azulSec }}>Puntos de Referencias Cambiarias</h4>
       </div>
 
       {locations.length === 0 ? (
@@ -342,7 +342,7 @@ function PointsPanel({ locations, map, compact = false }: { locations: any[]; ma
           <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-3 border shadow" style={{ background: `${PC.azul}14`, borderColor: `${PC.azul}33` }}>
             <img src="/pictures/location.png" alt="Sin puntos de cambio" className="w-14 h-14 object-contain drop-shadow" />
           </div>
-          <p className="text-sm sm:text-base font-bold" style={{ color: PC.azulSec }}>No hay puntos de cambio registrados</p>
+          <p className="text-sm sm:text-base font-bold" style={{ color: PC.azulSec }}>No hay puntos de referencia cambiarias registrados</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -363,11 +363,13 @@ function PointsPanel({ locations, map, compact = false }: { locations: any[]; ma
                   <h5 className="font-extrabold text-[13px] sm:text-sm mb-0.5 truncate" style={{ color: PC.azulSec }}>
                     {loc.code}
                   </h5>
+                  {/*
                   <div
                     className="text-[12px] sm:text-xs leading-relaxed line-clamp-2"
                     style={{ color: PC.azul }}
                     dangerouslySetInnerHTML={{ __html: loc.description }}
                   />
+                  */}
                 </div>
               </div>
             </button>

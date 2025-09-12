@@ -241,7 +241,7 @@ export default function SearchControlsTraders({
           <div className="w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:w-[92%] md:w-[85%] lg:w-[80%] rounded-none sm:rounded-2xl bg-white shadow-2xl sm:overflow-hidden flex flex-col">
             {/* Header sticky (móvil) */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b px-4 py-3 sm:px-6 bg-white">
-              <h2 className="text-base sm:text-lg font-semibold">Nuevo librecambista</h2>
+              <h2 className="text-base sm:text-lg font-semibold">Punto de Referencia Cambiaria</h2>
               <button
                 onClick={closePopup}
                 className="rounded-md bg-red-100 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-200"

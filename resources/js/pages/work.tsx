@@ -180,6 +180,7 @@ export default function Work() {
                         {/* Sección de Beneficios */}
                         
                         {/* Sección de Planes */}
+                        {/*
                         <motion.div 
                             className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200"
                             initial={{ opacity: 0, y: 30 }}
@@ -223,8 +224,7 @@ export default function Work() {
                                 ))}
                             </div>
                         </motion.div>
-
-                       
+                        */}
                     </motion.div>
                 </motion.section>
             </MainLayout>

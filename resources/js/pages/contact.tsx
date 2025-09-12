@@ -162,9 +162,9 @@ export default function Contact() {
                     Horarios de Atención
                   </h3>
                   <p className="text-gray-600 text-sm sm:text-base">
-                    Lunes a Viernes: 8:00 AM - 6:00 PM
+                    Lunes a Viernes: 08:00 - 18:00
                     <br />
-                    Sábados: 9:00 AM - 2:00 PM
+                    Sábados: 08:00 a 13:00
                   </p>
                 </div>
               </div>

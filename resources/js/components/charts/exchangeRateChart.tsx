@@ -62,7 +62,7 @@ export default function ExchangeRateChart() {
       data: {
         labels: monthlyLabels,
         datasets: [{
-          label: `USDT/BOB (${monthlyLabels[0]} - ${monthlyLabels[monthlyLabels.length - 1]})`,
+          label: `Bs/USDT (${monthlyLabels[0]} - ${monthlyLabels[monthlyLabels.length - 1]})`,
           data: monthlyAverages,
           borderColor: '#2563eb',
           backgroundColor: 'rgba(37, 99, 235, 0.15)',
@@ -187,7 +187,7 @@ export default function ExchangeRateChart() {
         )}
       </div>
       <p className="mt-2 sm:mt-4 text-xs sm:text-base text-gray-500 text-right italic">
-        Fuente: Binance (USDT/BOB)
+        Fuente: Binance P2P (Bs/USDT)
       </p>
     </motion.div>
   );
