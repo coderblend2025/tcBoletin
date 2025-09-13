@@ -84,9 +84,9 @@ export default function TradersPage() {
       <div>
         <div className="mb-8 flex items-center justify-between">
           <div className="w-full border border-gray-200 bg-white p-3 rounded-md">
-            <h4 className="text-xs font-semibold text-gray-900">Administración de Librecambistas</h4>
+            <h4 className="text-xs font-semibold text-gray-900">Administración de Puntos de Referencia Intercambistas</h4>
             <hr className="my-2" />
-            <span className="text-[11px] text-gray-600">Todos los librecambistas del sistema aparecerán aquí</span>
+            <span className="text-[11px] text-gray-600">Todos los Puntos de Referencia Intercambistas aparecen aquí</span>
           </div>
         </div>
 

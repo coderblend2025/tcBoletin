@@ -62,13 +62,13 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
                 </motion.div>
 
                 <h1 className="text-2xl font-bold text-blue-900 mb-2">
-                  TC Boletín Económico
+                  tcboletin.com
                 </h1>
 
                 <h2 className="text-base text-gray-600 mb-6 leading-relaxed">
-                  A partir de tu Aporte Voluntario puedes acceder a información actualizada de
+                  Por lanzamiento de la página, aprovecha para registrarte GRATIS!!!
                   <span className="block font-bold text-blue-900 mt-1">
-                    tcboletineconomico.com
+                    tcboletin.com
                   </span>
                 </h2>
 
@@ -83,17 +83,17 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
                   </p>
                   <div className="bg-white rounded-lg p-4 border border-blue-100">
                     <p className="text-3xl font-bold text-blue-900 mb-1">
-                      USD 2,87
+                      Por lanzamiento de la página, aprovecha para registrarte GRATIS!!!
                     </p>
                     <p className="text-sm text-gray-600">
-                      mensuales • Cancela cuando quieras
+                      
                     </p>
                   </div>
                 </div>
 
                 {/* Botón mejorado */}
                 <motion.button
-                  onClick={onContinue}
+                  onClick={onClose}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

@@ -43,7 +43,7 @@ const News = () => {
 
     useEffect(() => {
           const bcvData = { compra: 6.86, venta: 6.96 };
-            const binanceData = { compra: 14.02, venta: 14.02 };
+            const binanceData = {compra: 13.16, venta: 11.97};
             const today = new Date().toLocaleDateString('es-BO', {
                 day: '2-digit',
                 month: '2-digit',

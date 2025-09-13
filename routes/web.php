@@ -10,11 +10,16 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SubcriptionController;
 use App\Http\Controllers\LocationMoneyChangerPriceController;
+use App\Http\Controllers\DolarRateController;
+use App\Http\Controllers\PaymentController;
 use App\Models\Plan;
+
+ Route::get('/scrape/dolar-bolivia-hoy', DolarRateController::class);
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
+
 
 Route::get('/about', function () {
     return Inertia::render('aboutus');
@@ -51,14 +56,38 @@ Route::get('/infoSpeculation', function () {
 })->name('infoSpeculation');
 
 
+Route::get('/payment/is-enabled', [PaymentController::class, 'isEnabled']);
+Route::post('/payment/set-enabled', [PaymentController::class, 'setEnabled']);
+
+
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
     
-   
+    Route::get('/dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
+
     Route::get('/traders', [TraderController::class, 'index'])->name('traders.index');
     Route::post('/traders', [TraderController::class, 'store'])->name('traders.store');
     Route::put('/traders/{id}', [TraderController::class, 'update'])->name('traders.update');
     Route::delete('/traders/{id}', [TraderController::class, 'destroy'])->name('traders.destroy');
+
+
+    Route::prefix('location-money-changer-price')->group(function () {
+                // Obtener todos los precios para un location_money_changer específico
+                Route::get('/{id_location_money_changer}', [LocationMoneyChangerPriceController::class, 'index']);
+
+                // Crear un nuevo precio
+                Route::post('/', [LocationMoneyChangerPriceController::class, 'store']);
+
+                // Actualizar un precio
+                Route::put('/{id}', [LocationMoneyChangerPriceController::class, 'update']);
+
+                // Eliminar un precio
+                Route::delete('/{id}', [LocationMoneyChangerPriceController::class, 'destroy']);
+       
+                Route::get('/info/{id_location_money_changer}', [LocationMoneyChangerPriceController::class, 'getPricesInfo']);
+
+            });
+
    
       // Rutas para administradores
     Route::middleware(['role:admin'])->group(function () {
@@ -82,24 +111,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         Route::post('/subscriptions/{id}/pay', [SubcriptionController::class, 'pay'])->name('subscriptions.pay');
         Route::get('/subscriptions/{id}/cancel', [SubcriptionController::class, 'cancel'])->name('subscriptions.cancel');
-        
-        Route::prefix('location-money-changer-price')->group(function () {
-                // Obtener todos los precios para un location_money_changer específico
-                Route::get('/{id_location_money_changer}', [LocationMoneyChangerPriceController::class, 'index']);
-
-                // Crear un nuevo precio
-                Route::post('/', [LocationMoneyChangerPriceController::class, 'store']);
-
-                // Actualizar un precio
-                Route::put('/{id}', [LocationMoneyChangerPriceController::class, 'update']);
-
-                // Eliminar un precio
-                Route::delete('/{id}', [LocationMoneyChangerPriceController::class, 'destroy']);
-       
-                Route::get('/info/{id_location_money_changer}', [LocationMoneyChangerPriceController::class, 'getPricesInfo']);
-
-            });
-
     });
 
     // Rutas para clientes
@@ -109,13 +120,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         criptions');
         Route::get('/money-changers', [LocationMoneyChangerPriceController::class, 'indexWithLatestPrices']);
         Route::get('/money-changers/best-usd-sale', [LocationMoneyChangerPriceController::class, 'getBestUsdSale']);
-        Route::get('/money-changers/all-best-usd-sales', [LocationMoneyChangerPriceController::class, 'getAllBestUsdSales']);
-        
-        
+        Route::get('/money-changers/all-best-usd-sales', [LocationMoneyChangerPriceController::class, 'getAllBestUsdSales']);  
     });
-
 });
 
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+
+
+

@@ -28,9 +28,10 @@ class DashboardController extends Controller
     public function getStats()
     {
         return response()->json([
-            'total_users' => User::count(),
+            'total_users' => User::whereHas('roles', fn($q) => $q->where('name', 'customer'))
+                ->count(),
             'new_users_this_week' => User::where('created_at', '>=', now()->subWeek())->count(),
-            'active_sellers_today' => User::whereHas('roles', fn($q) => $q->where('name', 'seller'))
+            'active_sellers_today' => User::whereHas('roles', fn($q) => $q->where('name', 'consultor'))
                 ->count(),
             'total_page_views' => PageView::count(),
             'unique_visits_today' => PageView::whereDate('created_at', today())->distinct('ip')->count(),

@@ -91,19 +91,19 @@ function SubscriptionsTable({
 
   return (
     <div className="mx-auto w-full overflow-x-auto overflow-y-visible">
-      <table className="min-w-full divide-y divide-gray-200 rounded-md shadow-sm">
+      <table className="min-w-full divide-y divide-gray-200 rounded-md shadow-sm text-[11px] sm:text-sm">
         <thead className="bg-gray-50 sticky top-0 z-10">
           <tr>
-            <th className="px-4 py-3 text-left text-[11px] font-semibold tracking-wider text-gray-600 uppercase w-[60px]">#</th>
-            <Th field="start_date" label="Inicio" width="w-[140px]" />
-            <Th field="end_date" label="Fin" width="w-[140px]" />
-            <Th field="status" label="Estado" width="w-[140px]" />
-            <Th field="user.name" label="Usuario" width="w-[220px]" />
-            <Th field="user.email" label="Email" width="w-[260px]" />
-            <Th field="user.role" label="Rol" width="w-[160px]" />
-            <Th field="plan.name" label="Plan" width="w-[220px]" />
-            <Th field="plan.price" label="Precio" width="w-[140px]" />
-            <th className="px-4 py-3 text-right text-[11px] font-semibold text-gray-600 uppercase tracking-wider w-[140px]">Acciones</th>
+            <th className="px-1 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold tracking-wider text-gray-600 uppercase w-[32px] sm:w-[60px]">#</th>
+            <Th field="start_date" label="Inicio" width="w-[60px] sm:w-[140px]" />
+            <Th field="end_date" label="Fin" width="w-[60px] sm:w-[140px]" />
+            <Th field="status" label="Estado" width="w-[60px] sm:w-[140px]" />
+            <Th field="user.name" label="Usuario" width="w-[90px] sm:w-[220px]" />
+            <Th field="user.email" label="Email" width="w-[100px] sm:w-[260px]" />
+            <Th field="user.role" label="Rol" width="w-[60px] sm:w-[160px]" />
+            <Th field="plan.name" label="Plan" width="w-[90px] sm:w-[220px]" />
+            <Th field="plan.price" label="Precio" width="w-[60px] sm:w-[140px]" />
+            <th className="px-1 sm:px-4 py-2 sm:py-3 text-right text-[10px] sm:text-[11px] font-semibold text-gray-600 uppercase tracking-wider w-[60px] sm:w-[140px]">Acciones</th>
           </tr>
         </thead>
 
@@ -115,37 +115,37 @@ function SubscriptionsTable({
 
               return (
                 <tr key={s.id} className="odd:bg-white even:bg-gray-50/50 hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-700">{rowNumber}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{fmtDate(s.start_date)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{fmtDate(s.end_date)}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-gray-700">{rowNumber}</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-gray-700">{fmtDate(s.start_date)}</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-gray-700">{fmtDate(s.end_date)}</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3">
                     {s.status?.toLowerCase() === 'activo' ? (
-                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
                         ● Activo
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-200">
+                      <span className="inline-flex items-center rounded-full bg-rose-50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-200">
                         ● Inactivo
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{s.user.name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{s.user.email}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm font-medium text-gray-900">{s.user.name}</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-gray-700 whitespace-nowrap">{s.user.email}</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3">
                     {s.user.role ? (
-                      <span className="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-200">
+                      <span className="inline-flex items-center rounded-full bg-indigo-50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-200">
                         {s.user.role}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200">
+                      <span className="inline-flex items-center rounded-full bg-gray-50 px-1 sm:px-2 py-0.5 text-[9px] sm:text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200">
                         Sin rol
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{s.plan.name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{fmtPrice(s.plan.price)}</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-gray-700">{s.plan.name}</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-gray-900 whitespace-nowrap">{fmtPrice(s.plan.price)}</td>
 
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right">
                     <div className="relative inline-block text-left">
                       <button
                         ref={el => { buttonRefs.current[s.id] = el; }}
@@ -153,7 +153,7 @@ function SubscriptionsTable({
                         aria-haspopup="menu"
                         aria-expanded={isOpen}
                         onClick={(e) => { e.stopPropagation(); setOpenMenuId(isOpen ? null : s.id); }}
-                        className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1 py-1 sm:px-2.5 sm:py-1.5 text-[10px] sm:text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       >
                         Acciones
                         <FaAngleDown className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -164,19 +164,19 @@ function SubscriptionsTable({
                           anchorEl={buttonRefs.current[s.id] ?? null}
                           onClose={() => setOpenMenuId(null)}
                           align="right"
-                          width={224}
+                          width={180}
                         >
                           <button
                             role="menuitem"
                             onClick={() => { onEdit(s); setOpenMenuId(null); }}
-                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            className="flex w-full items-center gap-2 px-2 py-2 text-[10px] sm:text-sm text-gray-700 hover:bg-gray-50"
                           >
                             <FiEdit /> Editar
                           </button>
                           <button
                             role="menuitem"
                             onClick={() => { onDelete(s); setOpenMenuId(null); }}
-                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-rose-700 hover:bg-rose-50"
+                            className="flex w-full items-center gap-2 px-2 py-2 text-[10px] sm:text-sm text-rose-700 hover:bg-rose-50"
                           >
                             <FiTrash2 /> Eliminar
                           </button>
@@ -189,13 +189,28 @@ function SubscriptionsTable({
             })
           ) : (
             <tr>
-              <td colSpan={10} className="px-6 py-6 text-center text-sm text-gray-500">
+              <td colSpan={10} className="px-6 py-6 text-center text-[10px] sm:text-sm text-gray-500">
                 No se encontraron suscripciones
               </td>
             </tr>
           )}
         </tbody>
       </table>
+      {/* Mobile legend for columns */}
+      <div className="block sm:hidden mt-2 text-[10px] text-gray-500">
+        <div className="flex flex-wrap gap-2">
+          <span><b>#</b>: Número</span>
+          <span><b>Inicio</b>: Fecha inicio</span>
+          <span><b>Fin</b>: Fecha fin</span>
+          <span><b>Estado</b></span>
+          <span><b>Usuario</b></span>
+          <span><b>Email</b></span>
+          <span><b>Rol</b></span>
+          <span><b>Plan</b></span>
+          <span><b>Precio</b></span>
+          <span><b>Acciones</b></span>
+        </div>
+      </div>
     </div>
   );
 
@@ -406,7 +421,7 @@ export default function SubscriptionsIndex() {
                 <div className="mx-auto w-full rounded-lg bg-white p-6 shadow">
                     <SearchControls
                         searchTerm={searchTerm}
-                        actionButtonName="Nueva Suscripción"
+                        actionButtonName=""
                         onActionButtonClick={handleNuevaSubClick}
                         onSearchChange={setSearchTerm}
                         itemsPerPage={subcriptions.per_page as 5 | 10 | 20 | 50}

@@ -24,7 +24,7 @@ export default function AboutUs() {
         };
 
         fetchExchangeRates();
-    }, [propBcvInfo, propBinanceInfo]);
+    }, []);
 
     return (
         <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
@@ -71,7 +71,7 @@ export default function AboutUs() {
                         </div>
 
                         {/* Grid de Características */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-1">
                             <motion.div
                                 initial={{ opacity: 0, x: -50 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -153,7 +153,18 @@ export default function AboutUs() {
                         </div>
 
                         {/* Compromiso Section */}
-                       
+                        <motion.div
+                            initial={{ opacity: 0, x: 50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.6, delay: 0.4 }}
+                            className="flex items-center justify-center" // Añadido para centrado
+                        >
+                            <div className="relative">
+                                <div className="bg-gradient-to-br rounded-2xl p-8 bg-transparent">
+                                    <h2 className="text-1xl font-bold text-gray-700 mb-4 text-center">Con tu apoyo iremos sumando otras variables importantes que actualmente afectan tu día a día.</h2>
+                                </div>
+                            </div>
+                        </motion.div>
 
                         {/* Propósito Section */}
                         <motion.div 
