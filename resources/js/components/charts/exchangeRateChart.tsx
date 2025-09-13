@@ -15,7 +15,6 @@ const hardcodedRates: Record<string, number[]> = {
   '2025': [15.0, 15.2, 15.3, 15.3, 15.3, 15.3, 15.3, 13.16, NaN, NaN, NaN, NaN]
 };
 
-
 export default function ExchangeRateChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
