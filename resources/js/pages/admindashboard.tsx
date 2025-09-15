@@ -63,16 +63,17 @@ export default function AdminDashboard() {
         <StatCard icon={<BarChart3 />} title="Visitas Totales" value={`${stats.totalPageViews}`} subtitle={`Visitas únicas hoy: ${stats.uniqueVisitsToday}`} />
         <StatCard icon={<Globe />} title="Puntos de Cambio" value={stats.totalExchangePoints.toLocaleString()} subtitle="Registrados" />
       </div>
-
+      {/*
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-center mb-4">Gráfica del Tipo de Cambio</h3>
           <ExchangeRateChart />
         </Card>
         <Card className="p-6">
-          {/* Aquí puedes mantener la tabla de tipos de cambio externos */}
+          
         </Card>
       </div>
+      */}
     </AppLayout>
   );
 }

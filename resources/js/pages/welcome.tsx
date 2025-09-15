@@ -53,8 +53,8 @@ export default function Welcome() {
       const bcvData = { compra: 6.86, venta: 6.96 };
       const binanceData = {  compra: 13.16, venta: 11.97 };
       const today = new Date().toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      setBcvInfo(`Banco Central de Bolivia: Venta Bs ${bcvData.compra} - Compra Bs ${bcvData.venta} (${today})`);
-      setBinanceInfo(`Binance Bs/USDT: Compra Bs ${binanceData.compra} - Venta Bs ${binanceData.venta} (Actualizado a horas 08:00 a.m. - ${today})`);
+      setBcvInfo(`Banco Central de Bolivia: Venta Bs ${bcvData.venta} - Compra Bs  ${bcvData.compra} (${today})`);
+      setBinanceInfo(`Binance P2P Bs/USDT: Compra Bs ${binanceData.compra} - Venta Bs ${binanceData.venta} (Actualizado ${today} horas 08:00 a.m.)`);
     };
     fetchExchangeRates();
   }, []);
@@ -112,7 +112,7 @@ export default function Welcome() {
                 {
                   img: '/pictures/variablesnuevas.png',
                   title: 'Especulación vs. Información',
-                  desc: 'Radica principalmente en el proposito y la acción involucrada en cada uno de estos conceptos',
+                  desc: 'Radica principalmente en el propósito y la acción involucrada en cada uno de estos conceptos',
                   href: '/infoSpeculation',
                   cta: 'Leer más',
                   delay: 0,
@@ -185,7 +185,7 @@ export default function Welcome() {
                 <div className="w-12 sm:w-16 h-0.5 bg-white/50 mx-auto mb-3 sm:mb-4" />
                 <p className="text-xs sm:text-sm text-blue-100 mb-5 sm:mb-6 leading-relaxed">Te ofrecemos información actualizada del mercado con transparencia.</p>
                 <Link
-                  href="#"
+                  href={route('register')}
                   className="inline-flex items-center bg-white text-blue-900 font-bold py-2.5 sm:py-3 px-5 sm:px-6 rounded-xl hover:bg-blue-50 transition-all duration-200 hover:scale-105 shadow-lg"
                 >
                   Explorar Ahora <FaArrowRight className="ml-2" />
@@ -304,7 +304,7 @@ export default function Welcome() {
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <FaChartBar className="text-blue-600 text-lg sm:text-xl" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-blue-900">Gráfica del Tipo de Cambio USD/BOB</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-blue-900">Gráfica del Tipo de Cambio Bs/USDT</h3>
               </div>
               <div className="bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl p-4 sm:p-6 border border-blue-100">
                 <ExchangeRateChart />
