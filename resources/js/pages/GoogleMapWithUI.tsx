@@ -141,6 +141,9 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
             code: item.code,
             description: `${item.ubication_name}<br/>Venta: ${item.latest_price?.price_sale ?? 'N/D'} Bs • Compra: ${item.latest_price?.price_buy ?? 'N/D'} Bs`,
             position: { lat: parseFloat(item.lan), lng: parseFloat(item.log) },
+            venta: item.latest_price?.price_sale ?? null,      // <-- agrega esto
+            compra: item.latest_price?.price_buy ?? null,      // <-- agrega esto
+            actualizado: item.latest_price?.updated_at ?? null 
           }));
           setLocations(formatted);
           return formatted;
@@ -463,6 +466,19 @@ function PointsPanel({
   map: google.maps.Map | null;
   compact?: boolean;
 }) {
+  // Función para formatear la fecha
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString('es-ES'),
+      time: date.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      })
+    };
+  };
+
   return (
     <div>
       <div
@@ -504,62 +520,84 @@ function PointsPanel({
           </p>
         </div>
       ) : (
-        // En móvil (compact=true), limitamos la altura para que solo se vean 2–3 items
-        // y activamos scroll interno suave (iOS/Android).
         <div
           className={`space-y-2 ${
             compact ? 'max-h-[220px] overflow-y-auto -mr-1 pr-1' : ''
           }`}
           style={compact ? ({ WebkitOverflowScrolling: 'touch' } as any) : undefined}
         >
-          {locations.map((loc, i) => (
-            <button
-              type="button"
-              key={i}
-              className="w-full text-left rounded-lg p-3 transition-all duration-200 hover:shadow border"
-              style={{ background: '#fff', borderColor: `${PC.azul}22` }}
-              onClick={() => {
-                focusWithBounce(map, loc.position, loc.code);
-              }}
-            >
-              <div className="flex items-start gap-2">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border shadow"
-                  style={{ background: `${PC.azul}22`, borderColor: `${PC.azul}33` }}
-                >
-                  <span
-                    className="text-sm font-extrabold"
-                    style={{ color: PC.azulSec }}
-                  >
-                    {i + 1}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h5
-                    className="font-extrabold text-[14px] mb-0.5 truncate"
-                    style={{ color: PC.azulSec }}
-                  >
-                    {loc.code}
-                  </h5>
+          {locations.map((loc, i) => {
+            const formattedDate = loc.actualizado ? formatDate(loc.actualizado) : null;
+            
+            return (
+              <button
+                type="button"
+                key={i}
+                className="w-full text-left rounded-lg p-3 transition-all duration-200 hover:shadow border"
+                style={{ background: '#fff', borderColor: `${PC.azul}22` }}
+                onClick={() => {
+                  focusWithBounce(map, loc.position, loc.code);
+                }}
+              >
+                <div className="flex items-start gap-2">
                   <div
-                    className="text-[12px] leading-relaxed line-clamp-2"
-                    style={{ color: PC.azul }}
-                    dangerouslySetInnerHTML={{ __html: loc.description }}
-                  />
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border shadow"
+                    style={{ background: `${PC.azul}22`, borderColor: `${PC.azul}33` }}
+                  >
+                    <span
+                      className="text-sm font-extrabold"
+                      style={{ color: PC.azulSec }}
+                    >
+                      {i + 1}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    {/* Título */}
+                    <h5
+                      className="font-extrabold text-[14px] mb-1 truncate"
+                      style={{ color: PC.azulSec }}
+                    >
+                      {loc.code}
+                    </h5>
+                    
+                    {/* Precios de compra/venta */}
+                    <div className="text-[12px] font-semibold mb-1" style={{ color: PC.azul }}>
+                      Venta: Bs{loc.venta?.toFixed(2)} – Compra: Bs{loc.compra?.toFixed(2)}
+                    </div>
+                    
+                    {/* Fecha de actualización */}
+                    {formattedDate && (
+                      <div className="text-[11px] opacity-75" style={{ color: PC.azul }}>
+                        Actualizado: {formattedDate.date} – {formattedDate.time}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-
 function BestRatesList({ map }: { map: google.maps.Map | null }) {
   const [rates, setRates] = useState<Rate[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Función para formatear la fecha
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString('es-ES'),
+      time: date.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      })
+    };
+  };
 
   useEffect(() => {
     fetch('/money-changers/all-best-usd-sales', { headers: { Accept: 'application/json' } })
@@ -585,46 +623,59 @@ function BestRatesList({ map }: { map: google.maps.Map | null }) {
   if (rates.length === 0) {
     return <p className="text-sm font-bold text-center" style={{ color: PC.azulSec }}>No hay tipos de cambio registrados</p>;
   }
-
+  
   return (
     <div className="space-y-3">
-      {rates.map((rate, i) => (
-        <button
-          type="button"
-          key={i}
-          onClick={() => {
-            const position = { lat: Number(rate.lat), lng: Number(rate.lng) };
-            focusWithBounce(map, position, rate.location);
-          }}
-          className="w-full text-left cursor-pointer transition rounded-lg p-2 border shadow-sm flex items-center gap-3 hover:shadow-md"
-          style={{ background: '#fff', borderColor: `${PC.azul}22` }}
-        >
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center border shadow mr-1"
-               style={{ background: `${PC.azul}22`, borderColor: `${PC.azul}33` }}>
-            <span className="text-base font-extrabold" style={{ color: PC.azulSec }}>{i + 1}</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <h5 className="font-extrabold text-[13px] sm:text-sm mb-0.5 truncate" style={{ color: PC.azulSec }}>
-              {rate.location}
-            </h5>
-            <p className="text-[12px] sm:text-xs truncate" style={{ color: PC.azul }}>{rate.ubication}</p>
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <div className="rounded-lg p-2 text-center border"
-                   style={{ background: `${PC.verde}14`, borderColor: `${PC.verde}33` }}>
-                <p className="text-[10px] font-bold mb-0.5" style={{ color: PC.verde }}>Venta</p>
-                <p className="font-extrabold text-sm leading-none" style={{ color: PC.verde }}>{rate.price_sale}</p>
-                <p className="text-[10px] text-gray-500">Bs</p>
-              </div>
-              <div className="rounded-lg p-2 text-center border"
-                   style={{ background: `${PC.azulSec}14`, borderColor: `${PC.azulSec}33` }}>
-                <p className="text-[10px] font-bold mb-0.5" style={{ color: PC.azulSec }}>Compra</p>
-                <p className="font-extrabold text-sm leading-none" style={{ color: PC.azulSec }}>{rate.price_buy}</p>
-                <p className="text-[10px] text-gray-500">Bs</p>
-              </div>
+      {rates.map((rate, i) => {
+        const formattedDate = rate.updated_at ? formatDate(rate.updated_at) : null;
+        
+        return (
+          <button
+            type="button"
+            key={i}
+            onClick={() => {
+              const position = { lat: Number(rate.lat), lng: Number(rate.lng) };
+              focusWithBounce(map, position, rate.location);
+            }}
+            className="w-full text-left cursor-pointer transition rounded-lg p-3 border shadow-sm flex items-center gap-3 hover:shadow-md"
+            style={{ background: '#fff', borderColor: `${PC.azul}22` }}
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center border shadow mr-1"
+                 style={{ background: `${PC.azul}22`, borderColor: `${PC.azul}33` }}>
+              <span className="text-base font-extrabold" style={{ color: PC.azulSec }}>{i + 1}</span>
             </div>
-          </div>
-        </button>
-      ))}
+            <div className="flex-1 min-w-0">
+              <h5 className="font-extrabold text-[13px] sm:text-sm mb-1 truncate" style={{ color: PC.azulSec }}>
+                {rate.location}
+              </h5>
+              <p className="text-[12px] sm:text-xs truncate mb-1" style={{ color: PC.azul }}>{rate.ubication}</p>
+              
+              {/* Precios */}
+              <div className="grid grid-cols-2 gap-2 mb-1">
+                <div className="rounded-lg p-2 text-center border"
+                     style={{ background: `${PC.verde}14`, borderColor: `${PC.verde}33` }}>
+                  <p className="text-[10px] font-bold mb-0.5" style={{ color: PC.verde }}>Venta</p>
+                  <p className="font-extrabold text-sm leading-none" style={{ color: PC.verde }}>{rate.price_sale}</p>
+                  <p className="text-[10px] text-gray-500">Bs</p>
+                </div>
+                <div className="rounded-lg p-2 text-center border"
+                     style={{ background: `${PC.azulSec}14`, borderColor: `${PC.azulSec}33` }}>
+                  <p className="text-[10px] font-bold mb-0.5" style={{ color: PC.azulSec }}>Compra</p>
+                  <p className="font-extrabold text-sm leading-none" style={{ color: PC.azulSec }}>{rate.price_buy}</p>
+                  <p className="text-[10px] text-gray-500">Bs</p>
+                </div>
+              </div>
+              
+              {/* Fecha de actualización */}
+              {formattedDate && (
+                <div className="text-[11px] opacity-75 text-center" style={{ color: PC.azul }}>
+                  Actualizado: {formattedDate.date} – {formattedDate.time}
+                </div>
+              )}
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -651,7 +702,16 @@ function ExchangePointsTable({
 
       let dateObj: Date | null = null;
 
-      if (rateInfo?.updated_at) {
+      // PRIMERO intenta usar la fecha de la location (loc.actualizado)
+      if (loc.actualizado) {
+        const parsed = new Date(loc.actualizado);
+        if (!isNaN(parsed.getTime())) {
+          dateObj = parsed;
+        }
+      }
+      
+      // SI NO, intenta con la fecha de bestRates
+      if (!dateObj && rateInfo?.updated_at) {
         const fixed = rateInfo.updated_at.replace(' ', 'T');
         const parsed = new Date(fixed);
         if (!isNaN(parsed.getTime())) {
@@ -659,15 +719,36 @@ function ExchangePointsTable({
         }
       }
 
-      if (!dateObj) dateObj = new Date();
+      // SI NO HAY FECHA VÁLIDA, no mostrar fecha o mostrar "No disponible"
+      if (!dateObj) {
+        return {
+          code: loc.code,
+          location: loc.title,
+          sale: rateInfo?.price_sale || 'N/D',
+          buy: rateInfo?.price_buy || 'N/D',
+          date: 'N/D',
+          time: 'N/D',
+          position: loc.position,
+          rawDate: null,
+          rawTime: null
+        };
+      }
 
       return {
         code: loc.code,
         location: loc.title,
         sale: rateInfo?.price_sale || 'N/D',
         buy: rateInfo?.price_buy || 'N/D',
-        date: dateObj.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-        time: dateObj.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        date: dateObj.toLocaleDateString('es-BO', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric' 
+        }),
+        time: dateObj.toLocaleTimeString('es-BO', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: true  // Formato 12 horas
+        }),
         position: loc.position,
         rawDate: dateObj,
         rawTime: dateObj.getTime()
@@ -690,13 +771,39 @@ function ExchangePointsTable({
       let valueA = a[sortConfig.key];
       let valueB = b[sortConfig.key];
 
-      if (valueA === null || valueA === 'N/D' || valueA === 0) valueA = sortConfig.direction === 'asc' ? Infinity : -Infinity;
-      if (valueB === null || valueB === 'N/D' || valueB === 0) valueB = sortConfig.direction === 'asc' ? Infinity : -Infinity;
+      // Manejo especial para fechas y horas
+      if (sortConfig.key === 'rawDate' || sortConfig.key === 'rawTime') {
+        // Si ambos son nulos o 'N/D', mantener orden original
+        if ((valueA === null || valueA === 'N/D') && (valueB === null || valueB === 'N/D')) return 0;
+        
+        // Si solo A es nulo o 'N/D', va al final en asc y al inicio en desc
+        if (valueA === null || valueA === 'N/D') return sortConfig.direction === 'asc' ? 1 : -1;
+        
+        // Si solo B es nulo o 'N/D', va al final en asc y al inicio en desc
+        if (valueB === null || valueB === 'N/D') return sortConfig.direction === 'asc' ? -1 : 1;
+        
+        // Ambos tienen valores válidos, comparar normalmente
+        if (valueA < valueB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (valueA > valueB) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      }
 
+      // Manejo para precios (sale y buy)
       if (sortConfig.key === 'sale' || sortConfig.key === 'buy') {
+        if (valueA === null || valueA === 'N/D' || valueA === 0) valueA = sortConfig.direction === 'asc' ? Infinity : -Infinity;
+        if (valueB === null || valueB === 'N/D' || valueB === 0) valueB = sortConfig.direction === 'asc' ? Infinity : -Infinity;
+
         valueA = typeof valueA === 'string' ? parseFloat(valueA) : valueA;
         valueB = typeof valueB === 'string' ? parseFloat(valueB) : valueB;
+
+        if (valueA < valueB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (valueA > valueB) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
       }
+
+      // Manejo para otros campos (como 'code')
+      if (valueA === null || valueA === 'N/D') valueA = sortConfig.direction === 'asc' ? Infinity : -Infinity;
+      if (valueB === null || valueB === 'N/D') valueB = sortConfig.direction === 'asc' ? Infinity : -Infinity;
 
       if (valueA < valueB) return sortConfig.direction === 'asc' ? -1 : 1;
       if (valueA > valueB) return sortConfig.direction === 'asc' ? 1 : -1;

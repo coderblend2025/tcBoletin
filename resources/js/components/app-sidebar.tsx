@@ -9,17 +9,16 @@ import { useState } from 'react';
 const colorPrimario = '#001276';
 
 const getNavItemsByRole = (roles: string[]) => {
-    const items: NavItem[] = [
-        {
-            title: 'Pantalla Principal',
-            href: '/dashboard',
-            icon: Home,
-        }
-    ];
+    const items: NavItem[] = [];
 
     // Menús para administradores
     if (roles.includes('admin')) {
         items.push(
+            {
+                title: 'Pantalla Principal',
+                href: '/dashboard',
+                icon: Home,
+            },
             {
                 title: 'Subscripciones',
                 href: '/subscriptions',
@@ -52,6 +51,11 @@ const getNavItemsByRole = (roles: string[]) => {
     if (roles.includes('customer')) {
         items.push(
             {
+                title: 'Pantalla Principal',
+                href: '/dashboard',
+                icon: Home,
+            },
+            {
                 title: 'Mis Subscripciones',
                 href: '/my-subscriptions',
                 icon: BookOpen,
@@ -59,9 +63,14 @@ const getNavItemsByRole = (roles: string[]) => {
         );
     }
 
-    // Menús para invitados (guest) - Solo Punto de Cambio
+    // Menús para invitados (guest)
     if (roles.includes('guest')) {
         items.push(
+            {
+                title: 'Pantalla Principal',
+                href: '/dashboard',
+                icon: Home,
+            },
             {
                 title: 'Punto de Cambio',
                 href: '/traders',
@@ -70,7 +79,7 @@ const getNavItemsByRole = (roles: string[]) => {
         );
     }
 
-    // Menús para consultores - Dashboard Admin y Punto de Cambio
+    // Menús para consultores - solo Punto de Cambio
     if (roles.includes('consultor')) {
         items.push(
             {

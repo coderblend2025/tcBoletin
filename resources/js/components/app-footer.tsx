@@ -11,7 +11,7 @@ function AppFooter() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
                 <div className="mb-4 md:mb-0 text-center md:text-left">
                     <h4 className="text-lg font-semibold">CONTACTO</h4>
-                    <p className="text-sm">Av. Blanco Galindo Km 8.5 Una cuadra al norte</p>
+                    <p className="text-sm">Calle Jacarandá s/n Zona Puntiti Chico</p>
                     <p className="text-sm">Cochabamba, Bolivia</p>
                 </div>
                 <div className="text-center md:text-right">
