@@ -16,12 +16,12 @@ const PC = {
 };
 
 interface Rate {
-  price_sale: string | number;
-  price_buy: string | number;
+  price_sale: string | number | null;
+  price_buy: string | number | null;
   location: string;
   ubication: string;
-  lat: number | string;
-  lng: number | string;
+  lat: number | string | null;
+  lng: number | string | null;
   updated_at?: string; // opcional, llega del backend
 }
 
@@ -140,10 +140,11 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
             title: item.name,
             code: item.code,
             description: `${item.ubication_name}<br/>Venta: ${item.latest_price?.price_sale ?? 'N/D'} Bs • Compra: ${item.latest_price?.price_buy ?? 'N/D'} Bs`,
-            position: { lat: parseFloat(item.lan), lng: parseFloat(item.log) },
-            venta: item.latest_price?.price_sale ?? null,      // <-- agrega esto
-            compra: item.latest_price?.price_buy ?? null,      // <-- agrega esto
-            actualizado: item.latest_price?.updated_at ?? null 
+            position: { lat: Number(item.lan), lng: Number(item.log) },
+            // normaliza a number | null
+            venta: toNum(item.latest_price?.price_sale),
+            compra: toNum(item.latest_price?.price_buy),
+            actualizado: item.latest_price?.updated_at ?? null
           }));
           setLocations(formatted);
           return formatted;
@@ -160,7 +161,15 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
         const res = await fetch('/money-changers/all-best-usd-sales', { headers: { Accept: 'application/json' } });
         const result = await res.json();
         if (result.success && Array.isArray(result.data)) {
-          setBestRates(result.data as Rate[]);
+          // normaliza los campos susceptibles
+          const normalized = (result.data as Rate[]).map((r) => ({
+            ...r,
+            price_sale: toNum(r.price_sale),
+            price_buy:  toNum(r.price_buy),
+            lat: toNum(r.lat),
+            lng: toNum(r.lng),
+          })) as Rate[];
+          setBestRates(normalized);
         } else {
           setBestRates([]);
         }
@@ -471,13 +480,16 @@ function PointsPanel({
     const date = new Date(dateString);
     return {
       date: date.toLocaleDateString('es-ES'),
-      time: date.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
+      time: date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true 
+        hour12: true
       })
     };
   };
+
+  // Formateo seguro para números o nulos
+  const fmt2 = (n: number | null) => (n === null ? '—' : n.toFixed(2));
 
   return (
     <div>
@@ -528,7 +540,7 @@ function PointsPanel({
         >
           {locations.map((loc, i) => {
             const formattedDate = loc.actualizado ? formatDate(loc.actualizado) : null;
-            
+
             return (
               <button
                 type="button"
@@ -559,12 +571,12 @@ function PointsPanel({
                     >
                       {loc.code}
                     </h5>
-                    
+
                     {/* Precios de compra/venta */}
                     <div className="text-[12px] font-semibold mb-1" style={{ color: PC.azul }}>
-                      Venta: Bs{loc.venta?.toFixed(2)} – Compra: Bs{loc.compra?.toFixed(2)}
+                      Venta: Bs{fmt2(loc.venta)} – Compra: Bs{fmt2(loc.compra)}
                     </div>
-                    
+
                     {/* Fecha de actualización */}
                     {formattedDate && (
                       <div className="text-[11px] opacity-75" style={{ color: PC.azul }}>
@@ -591,19 +603,33 @@ function BestRatesList({ map }: { map: google.maps.Map | null }) {
     const date = new Date(dateString);
     return {
       date: date.toLocaleDateString('es-ES'),
-      time: date.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
+      time: date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true 
+        hour12: true
       })
     };
+  };
+
+  const fmt2 = (n: number | string | null) => {
+    const num = toNum(n);
+    return num === null ? '—' : num.toFixed(2);
   };
 
   useEffect(() => {
     fetch('/money-changers/all-best-usd-sales', { headers: { Accept: 'application/json' } })
       .then(res => res.json())
       .then(result => {
-        if (result.success && Array.isArray(result.data)) setRates(result.data as Rate[]);
+        if (result.success && Array.isArray(result.data)) {
+          const normalized = (result.data as Rate[]).map((r) => ({
+            ...r,
+            price_sale: toNum(r.price_sale),
+            price_buy:  toNum(r.price_buy),
+            lat: toNum(r.lat),
+            lng: toNum(r.lng),
+          })) as Rate[];
+          setRates(normalized);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -623,12 +649,12 @@ function BestRatesList({ map }: { map: google.maps.Map | null }) {
   if (rates.length === 0) {
     return <p className="text-sm font-bold text-center" style={{ color: PC.azulSec }}>No hay tipos de cambio registrados</p>;
   }
-  
+
   return (
     <div className="space-y-3">
       {rates.map((rate, i) => {
         const formattedDate = rate.updated_at ? formatDate(rate.updated_at) : null;
-        
+
         return (
           <button
             type="button"
@@ -649,23 +675,23 @@ function BestRatesList({ map }: { map: google.maps.Map | null }) {
                 {rate.location}
               </h5>
               <p className="text-[12px] sm:text-xs truncate mb-1" style={{ color: PC.azul }}>{rate.ubication}</p>
-              
+
               {/* Precios */}
               <div className="grid grid-cols-2 gap-2 mb-1">
                 <div className="rounded-lg p-2 text-center border"
                      style={{ background: `${PC.verde}14`, borderColor: `${PC.verde}33` }}>
                   <p className="text-[10px] font-bold mb-0.5" style={{ color: PC.verde }}>Venta</p>
-                  <p className="font-extrabold text-sm leading-none" style={{ color: PC.verde }}>{rate.price_sale}</p>
+                  <p className="font-extrabold text-sm leading-none" style={{ color: PC.verde }}>{fmt2(rate.price_sale)}</p>
                   <p className="text-[10px] text-gray-500">Bs</p>
                 </div>
                 <div className="rounded-lg p-2 text-center border"
                      style={{ background: `${PC.azulSec}14`, borderColor: `${PC.azulSec}33` }}>
                   <p className="text-[10px] font-bold mb-0.5" style={{ color: PC.azulSec }}>Compra</p>
-                  <p className="font-extrabold text-sm leading-none" style={{ color: PC.azulSec }}>{rate.price_buy}</p>
+                  <p className="font-extrabold text-sm leading-none" style={{ color: PC.azulSec }}>{fmt2(rate.price_buy)}</p>
                   <p className="text-[10px] text-gray-500">Bs</p>
                 </div>
               </div>
-              
+
               {/* Fecha de actualización */}
               {formattedDate && (
                 <div className="text-[11px] opacity-75 text-center" style={{ color: PC.azul }}>
@@ -709,7 +735,7 @@ function ExchangePointsTable({
           dateObj = parsed;
         }
       }
-      
+
       // SI NO, intenta con la fecha de bestRates
       if (!dateObj && rateInfo?.updated_at) {
         const fixed = rateInfo.updated_at.replace(' ', 'T');
@@ -724,8 +750,8 @@ function ExchangePointsTable({
         return {
           code: loc.code,
           location: loc.title,
-          sale: rateInfo?.price_sale || 'N/D',
-          buy: rateInfo?.price_buy || 'N/D',
+          sale: rateInfo?.price_sale ?? 'N/D',
+          buy: rateInfo?.price_buy ?? 'N/D',
           date: 'N/D',
           time: 'N/D',
           position: loc.position,
@@ -737,16 +763,16 @@ function ExchangePointsTable({
       return {
         code: loc.code,
         location: loc.title,
-        sale: rateInfo?.price_sale || 'N/D',
-        buy: rateInfo?.price_buy || 'N/D',
-        date: dateObj.toLocaleDateString('es-BO', { 
-          day: '2-digit', 
-          month: '2-digit', 
-          year: 'numeric' 
+        sale: rateInfo?.price_sale ?? 'N/D',
+        buy: rateInfo?.price_buy ?? 'N/D',
+        date: dateObj.toLocaleDateString('es-BO', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
         }),
-        time: dateObj.toLocaleTimeString('es-BO', { 
-          hour: '2-digit', 
-          minute: '2-digit', 
+        time: dateObj.toLocaleTimeString('es-BO', {
+          hour: '2-digit',
+          minute: '2-digit',
           hour12: true  // Formato 12 horas
         }),
         position: loc.position,
@@ -773,16 +799,9 @@ function ExchangePointsTable({
 
       // Manejo especial para fechas y horas
       if (sortConfig.key === 'rawDate' || sortConfig.key === 'rawTime') {
-        // Si ambos son nulos o 'N/D', mantener orden original
         if ((valueA === null || valueA === 'N/D') && (valueB === null || valueB === 'N/D')) return 0;
-        
-        // Si solo A es nulo o 'N/D', va al final en asc y al inicio en desc
         if (valueA === null || valueA === 'N/D') return sortConfig.direction === 'asc' ? 1 : -1;
-        
-        // Si solo B es nulo o 'N/D', va al final en asc y al inicio en desc
         if (valueB === null || valueB === 'N/D') return sortConfig.direction === 'asc' ? -1 : 1;
-        
-        // Ambos tienen valores válidos, comparar normalmente
         if (valueA < valueB) return sortConfig.direction === 'asc' ? -1 : 1;
         if (valueA > valueB) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
@@ -889,7 +908,7 @@ function ExchangePointsTable({
                   </button>
                 </th>
 
-                <th className="p-2 text-right w/[20%]">
+                <th className="p-2 text-right w-[20%]">
                   <button
                     onClick={() => handleSort('rawDate')}
                     className="flex items-center justify-end gap-1 w-full font-bold hover:opacity-80 transition-opacity"
