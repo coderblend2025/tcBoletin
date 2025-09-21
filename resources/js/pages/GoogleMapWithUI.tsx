@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -69,12 +69,14 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
   const [binanceInfo, setBinanceInfo] = useState<string>(propBinanceInfo || '');
   const [currentTab, setCurrentTab] = useState<'best' | 'points'>('best');
 
-  // Loader explícito para el panel de mejor cambio
+  // Loaders por sección
   const [bestRate, setBestRate] = useState<any | null>(null);
   const [bestLoading, setBestLoading] = useState<boolean>(true);
+  const [pointsLoading, setPointsLoading] = useState<boolean>(false);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
 
   /** Textos BCV/Binance cuando no llegan por props */
-  const fetchExchangeRates = () => {
+  const fetchExchangeStaticTexts = useCallback(() => {
     if (!propBcvInfo || !propBinanceInfo) {
       const bcvData: ExchangeRate = { buy: 6.96, sell: 6.86 };
       const binanceData: ExchangeRate = { buy: 13.16, sell: 11.97 };
@@ -83,10 +85,10 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
       setBcvInfo(`Banco Central de Bolivia: Compra Bs ${bcvData.buy} • Venta Bs ${bcvData.sell}`);
       setBinanceInfo(`Binance Bs/USDT: Compra Bs ${binanceData.buy} • Venta Bs ${binanceData.sell} (08:00 • ${currentDate})`);
     }
-  };
+  }, [propBcvInfo, propBinanceInfo]);
 
   /** Mejor cambio (single) para el panel izquierdo */
-  const fetchBestUsdSaleSingle = async () => {
+  const fetchBestUsdSaleSingle = useCallback(async () => {
     try {
       setBestLoading(true);
       const res = await fetch('/money-changers/best-usd-sale', {
@@ -97,7 +99,6 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
       try { result = JSON.parse(txt); } catch { result = null; }
 
       const raw = result?.data || {};
-      // normaliza a número
       const price_sale = toNum(raw.price_sale);
       const price_buy  = toNum(raw.price_buy);
 
@@ -119,7 +120,56 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
     } finally {
       setBestLoading(false);
     }
-  };
+  }, []);
+
+  /** Lista de ubicaciones (puntos) */
+  const fetchLocations = useCallback(async () => {
+    try {
+      const res = await fetch('/money-changers', { headers: { Accept: 'application/json' } });
+      const result = await res.json();
+      if (result.success && Array.isArray(result.data)) {
+        const formatted = result.data.map((item: any) => ({
+          id: item.id,
+          title: item.name,
+          code: item.code,
+          description: `${item.ubication_name}<br/>Venta: ${item.latest_price?.price_sale ?? 'N/D'} Bs • Compra: ${item.latest_price?.price_buy ?? 'N/D'} Bs`,
+          position: { lat: Number(item.lan), lng: Number(item.log) },
+          venta: toNum(item.latest_price?.price_sale),
+          compra: toNum(item.latest_price?.price_buy),
+          actualizado: item.latest_price?.updated_at ?? null
+        }));
+        setLocations(formatted);
+        return formatted;
+      }
+    } catch (e) {
+      console.error('Error ubicaciones:', e);
+    }
+    setLocations([]);
+    return [];
+  }, []);
+
+  /** Lista de mejores cambios (tabla y panel de puntos combinados) */
+  const fetchBestUsdSalesList = useCallback(async () => {
+    try {
+      const res = await fetch('/money-changers/all-best-usd-sales', { headers: { Accept: 'application/json' } });
+      const result = await res.json();
+      if (result.success && Array.isArray(result.data)) {
+        const normalized = (result.data as Rate[]).map((r) => ({
+          ...r,
+          price_sale: toNum(r.price_sale),
+          price_buy:  toNum(r.price_buy),
+          lat: toNum(r.lat),
+          lng: toNum(r.lng),
+        })) as Rate[];
+        setBestRates(normalized);
+      } else {
+        setBestRates([]);
+      }
+    } catch (e) {
+      console.error('Error mejores cambios:', e);
+      setBestRates([]);
+    }
+  }, []);
 
   // Reflejar props iniciales si llegan
   useEffect(() => {
@@ -127,57 +177,9 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
     if (propBinanceInfo) setBinanceInfo(propBinanceInfo);
   }, [propBcvInfo, propBinanceInfo]);
 
+  // Inicialización del mapa + datos iniciales
   useEffect(() => {
     let script: HTMLScriptElement | null = null;
-
-    const fetchLocations = async () => {
-      try {
-        const res = await fetch('/money-changers', { headers: { Accept: 'application/json' } });
-        const result = await res.json();
-        if (result.success && Array.isArray(result.data)) {
-          const formatted = result.data.map((item: any) => ({
-            id: item.id,
-            title: item.name,
-            code: item.code,
-            description: `${item.ubication_name}<br/>Venta: ${item.latest_price?.price_sale ?? 'N/D'} Bs • Compra: ${item.latest_price?.price_buy ?? 'N/D'} Bs`,
-            position: { lat: Number(item.lan), lng: Number(item.log) },
-            // normaliza a number | null
-            venta: toNum(item.latest_price?.price_sale),
-            compra: toNum(item.latest_price?.price_buy),
-            actualizado: item.latest_price?.updated_at ?? null
-          }));
-          setLocations(formatted);
-          return formatted;
-        }
-      } catch (e) {
-        console.error('Error ubicaciones:', e);
-      }
-      return [];
-    };
-
-    // Lista de mejores cambios (para tabla)
-    const fetchBestUsdSalesList = async () => {
-      try {
-        const res = await fetch('/money-changers/all-best-usd-sales', { headers: { Accept: 'application/json' } });
-        const result = await res.json();
-        if (result.success && Array.isArray(result.data)) {
-          // normaliza los campos susceptibles
-          const normalized = (result.data as Rate[]).map((r) => ({
-            ...r,
-            price_sale: toNum(r.price_sale),
-            price_buy:  toNum(r.price_buy),
-            lat: toNum(r.lat),
-            lng: toNum(r.lng),
-          })) as Rate[];
-          setBestRates(normalized);
-        } else {
-          setBestRates([]);
-        }
-      } catch (e) {
-        console.error('Error mejores cambios:', e);
-        setBestRates([]);
-      }
-    };
 
     const initMap = (center: google.maps.LatLngLiteral, locationsData: any[]) => {
       const googleMap = new window.google.maps.Map(mapRef.current!, {
@@ -213,13 +215,13 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
     const startApp = async (userPosition: google.maps.LatLngLiteral) => {
       const locationsData = await fetchLocations();
 
-      // cargamos a la vez: panel + tabla
+      // cargamos a la vez: panel + lista para tabla
       await Promise.all([
         fetchBestUsdSaleSingle(),
         fetchBestUsdSalesList(),
       ]);
 
-      if (!propBcvInfo || !propBinanceInfo) fetchExchangeRates();
+      fetchExchangeStaticTexts();
 
       if (window.google?.maps) {
         initMap(userPosition, locationsData);
@@ -238,11 +240,71 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
     );
 
     return () => { if (script && document.head.contains(script)) document.head.removeChild(script); };
-  }, []);
+  }, [fetchBestUsdSaleSingle, fetchBestUsdSalesList, fetchLocations, fetchExchangeStaticTexts]);
+
+  // ---- HANDLERS DE REFRESH POR SECCIÓN ----
+  const refreshBestSection = useCallback(async () => {
+    await fetchBestUsdSaleSingle();
+  }, [fetchBestUsdSaleSingle]);
+
+  const refreshPointsSection = useCallback(async () => {
+    try {
+      setPointsLoading(true);
+      // Para el panel de puntos combinados, conviene refrescar locations y la lista de rates
+      await Promise.all([fetchLocations(), fetchBestUsdSalesList()]);
+    } finally {
+      setPointsLoading(false);
+    }
+  }, [fetchLocations, fetchBestUsdSalesList]);
+
+  const refreshTableSection = useCallback(async () => {
+    try {
+      setTableLoading(true);
+      // La tabla usa locations + bestRates
+      await Promise.all([fetchLocations(), fetchBestUsdSalesList()]);
+    } finally {
+      setTableLoading(false);
+    }
+  }, [fetchLocations, fetchBestUsdSalesList]);
+
+  // --------- Memo combinado para Panel de Puntos ---------
+  const combinedPointsData = useMemo(() => {
+    return locations.map((loc: any) => {
+      const rateInfo = bestRates.find((rate: any) => rate.location === loc.code);
+
+      let dateObj: Date | null = null;
+      if (loc.actualizado) {
+        const parsed = new Date(loc.actualizado);
+        if (!isNaN(parsed.getTime())) dateObj = parsed;
+      }
+      if (!dateObj && rateInfo?.updated_at) {
+        const fixed = rateInfo.updated_at.replace(' ', 'T');
+        const parsed = new Date(fixed);
+        if (!isNaN(parsed.getTime())) dateObj = parsed;
+      }
+
+      return {
+        code: loc.code,
+        location: loc.title,
+        sale: rateInfo?.price_sale ?? 'N/D',
+        buy: rateInfo?.price_buy ?? 'N/D',
+        date: dateObj
+          ? dateObj.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+          : 'N/D',
+        time: dateObj
+          ? dateObj.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hour12: true })
+          : 'N/D',
+        position: loc.position,
+        venta: rateInfo?.price_sale ?? loc.venta,
+        compra: rateInfo?.price_buy ?? loc.compra,
+        actualizado: dateObj ? dateObj.toISOString() : null,
+      };
+    });
+  }, [locations, bestRates]);
 
   return (
     <div className="relative w-full h-[100dvh] min-h-[540px] bg-white">
-      {/* Loading */}
+      {/* Loading general (mapa) */}
       {isLoading && (
         <div className="absolute inset-0 z-30 flex justify-center items-center bg-white/90 backdrop-blur-sm">
           <div className="text-center">
@@ -286,14 +348,25 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
           className="absolute top-24 left-4 p-4 z-10 w-80 lg:w-96 max-h-[70vh] overflow-y-auto rounded-xl ring-1"
           style={{ background: 'rgba(255,255,255,0.98)', borderColor: `${PC.azul}22`, boxShadow: '0 10px 32px rgba(0,0,0,.08)', color: PC.azulOscuro }}
         >
-          <BestRatePanel bestRate={bestRate} bestLoading={bestLoading} map={map} />
+          <BestRatePanel
+            bestRate={bestRate}
+            bestLoading={bestLoading}
+            map={map}
+            onRefresh={refreshBestSection}
+          />
         </Card>
 
         <Card
           className="absolute top-24 right-4 p-3 z-10 w-80 lg:w-96 max-h-[70vh] overflow-y-auto rounded-xl ring-1"
           style={{ background: 'rgba(255,255,255,0.98)', borderColor: `${PC.azul}22`, boxShadow: '0 10px 32px rgba(0,0,0,.08)', color: PC.azulOscuro }}
         >
-          <PointsPanel locations={locations} map={map} />
+          <PointsPanel
+            locations={combinedPointsData}
+            map={map}
+            compact={false}
+            loading={pointsLoading}
+            onRefresh={refreshPointsSection}
+          />
         </Card>
       </div>
 
@@ -330,18 +403,37 @@ export default function GoogleMapWithUI({ bcvInfo: propBcvInfo, binanceInfo: pro
             </div>
 
             <div className="px-3 pb-3 max-h-[42vh] overflow-y-auto">
-              {currentTab === 'best'
-                ? <BestRatePanel bestRate={bestRate} bestLoading={bestLoading} map={map} compact />
-                : <PointsPanel locations={locations} map={map} compact />
-              }
+              {currentTab === 'best' ? (
+                <BestRatePanel
+                  bestRate={bestRate}
+                  bestLoading={bestLoading}
+                  map={map}
+                  compact
+                  onRefresh={refreshBestSection}
+                />
+              ) : (
+                <PointsPanel
+                  locations={combinedPointsData}
+                  map={map}
+                  compact
+                  loading={pointsLoading}
+                  onRefresh={refreshPointsSection}
+                />
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tabla unificada (visible en cualquier viewport donde la pongas) */}
+      {/* Tabla unificada */}
       <div className="max-h-[48vh] overflow-auto">
-        <ExchangePointsTable locations={locations} bestRates={bestRates} map={map} />
+        <ExchangePointsTable
+          locations={locations}
+          bestRates={bestRates}
+          map={map}
+          loading={tableLoading}
+          onRefresh={refreshTableSection}
+        />
       </div>
     </div>
   );
@@ -354,20 +446,19 @@ function BestRatePanel({
   bestRate,
   bestLoading,
   map,
-  compact = false
+  compact = false,
+  onRefresh,
 }: {
   bestRate: any;
   bestLoading: boolean;
   map: google.maps.Map | null;
   compact?: boolean;
+  onRefresh: () => void;
 }) {
-  // Convierte por si llegara sin normalizar
   const saleNum = toNum(bestRate?.price_sale);
   const buyNum  = toNum(bestRate?.price_buy);
-
   const hasValidData = saleNum !== null && buyNum !== null;
 
-  // Lat/Lng para centrar el mapa cuando se haga click en "Actualizado"
   const latNum = toNum(bestRate?.lat);
   const lngNum = toNum(bestRate?.lng);
 
@@ -387,22 +478,35 @@ function BestRatePanel({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-3 mb-2 pb-2 border-b" style={{ borderColor: `${PC.azul}1A` }}>
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow" style={{ background: PC.azul, border: `2px solid ${PC.azulSec}` }}>
-          <img src="/pictures/trabajaconnosotros.png" alt="Punto de cambio" className="w-9 h-9 object-contain drop-shadow" />
+      <div className="flex items-center justify-between gap-3 mb-2 pb-2 border-b" style={{ borderColor: `${PC.azul}1A` }}>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow" style={{ background: PC.azul, border: `2px solid ${PC.azulSec}` }}>
+            <img src="/pictures/trabajaconnosotros.png" alt="Punto de cambio" className="w-9 h-9 object-contain drop-shadow" />
+          </div>
+          <div className="flex flex-col justify-center">
+            <h4 className="text-base sm:text-lg font-extrabold leading-tight tracking-tight" style={{ color: PC.azulSec }}>
+              Mejor Tipo de Cambio
+            </h4>
+            <span
+              className="inline-flex items-center gap-1 text-[12px] sm:text-xs rounded px-2 py-0.5 font-semibold mt-1"
+              style={{ color: PC.azul, background: `${PC.azul}14` }}
+            >
+              <svg width="16" height="16" fill="none" viewBox="0 0 16 16" className="inline-block mr-1">
+                <circle cx="8" cy="8" r="7" stroke={PC.azul} strokeWidth="2"/><circle cx="8" cy="8" r="3" fill={PC.azul}/>
+              </svg>
+              Actualizado en tiempo real
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col justify-center">
-          <h4 className="text-base sm:text-lg font-extrabold leading-tight tracking-tight" style={{ color: PC.azulSec }}>
-            Mejor Tipo de Cambio
-          </h4>
-          <span className="inline-flex items-center gap-1 text-[12px] sm:text-xs rounded px-2 py-0.5 font-semibold mt-1"
-                style={{ color: PC.azul, background: `${PC.azul}14` }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 16 16" className="inline-block mr-1">
-              <circle cx="8" cy="8" r="7" stroke={PC.azul} strokeWidth="2"/><circle cx="8" cy="8" r="3" fill={PC.azul}/>
-            </svg>
-            Actualizado en tiempo real
-          </span>
-        </div>
+
+        <button
+          onClick={onRefresh}
+          className="text-xs font-bold px-3 py-1.5 rounded-lg border hover:bg-gray-50"
+          style={{ color: PC.azulSec, borderColor: `${PC.azul}33` }}
+          title="Actualizar sección"
+        >
+          ↻ Actualizar
+        </button>
       </div>
 
       {bestLoading ? (
@@ -434,7 +538,6 @@ function BestRatePanel({
             </div>
           </div>
 
-          {/* ---- Linea clickeable para ir a la ubicación del mejor precio ---- */}
           <p
             className="text-[11px] text-center pt-1 border-t cursor-pointer select-none hover:underline decoration-dotted"
             style={{ color: PC.azul, borderColor: `${PC.azul}1A` }}
@@ -444,7 +547,6 @@ function BestRatePanel({
             tabIndex={0}
             title={latNum !== null && lngNum !== null ? 'Ver ubicación en el mapa' : 'Sin ubicación disponible'}
           >
-            {/* Pincito inline para indicar acción */}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="inline-block mr-1 align-[-2px]">
               <path d="M12 22s7-5.686 7-12a7 7 0 10-14 0c0 6.314 7 12 7 12z" stroke={PC.azul} strokeWidth="2" fill="none"/>
               <circle cx="12" cy="10" r="3" stroke={PC.azul} strokeWidth="2" fill="none"/>
@@ -453,7 +555,6 @@ function BestRatePanel({
               ? new Date(bestRate.updated_at).toLocaleDateString('es-BO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })
               : 'Fecha no disponible'}
           </p>
-          {/* ------------------------------------------------------------------ */}
         </div>
       ) : (
         <div className="text-center py-6">
@@ -470,12 +571,15 @@ function PointsPanel({
   locations,
   map,
   compact = false,
+  loading = false,
+  onRefresh,
 }: {
   locations: any[];
   map: google.maps.Map | null;
   compact?: boolean;
+  loading?: boolean;
+  onRefresh: () => void;
 }) {
-  // Función para formatear la fecha
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
@@ -488,34 +592,49 @@ function PointsPanel({
     };
   };
 
-  // Formateo seguro para números o nulos
   const fmt2 = (n: number | null) => (n === null ? '—' : n.toFixed(2));
 
   return (
     <div>
       <div
-        className="flex items-center gap-2 mb-2 pb-2 border-b"
+        className="flex items-center justify-between gap-2 mb-2 pb-2 border-b"
         style={{ borderColor: `${PC.azul}1A` }}
       >
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shadow border"
-          style={{ background: PC.azul, borderColor: PC.azulSec }}
-        >
-          <img
-            src="/pictures/location.png"
-            alt="Punto de cambio"
-            className="w-7 h-7 object-contain drop-shadow"
-          />
+        <div className="flex items-center gap-2">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow border"
+            style={{ background: PC.azul, borderColor: PC.azulSec }}
+          >
+            <img
+              src="/pictures/location.png"
+              alt="Punto de cambio"
+              className="w-7 h-7 object-contain drop-shadow"
+            />
+          </div>
+          <h4
+            className="font-extrabold text-sm sm:text-base"
+            style={{ color: PC.azulSec }}
+          >
+            Puntos de Referencia Cambiaria
+          </h4>
         </div>
-        <h4
-          className="font-extrabold text-sm sm:text-base"
-          style={{ color: PC.azulSec }}
+
+        <button
+          onClick={onRefresh}
+          className="text-xs font-bold px-3 py-1.5 rounded-lg border hover:bg-gray-50"
+          style={{ color: PC.azulSec, borderColor: `${PC.azul}33` }}
+          title="Actualizar sección"
         >
-          Puntos de Referencia Cambiaria
-        </h4>
+          {loading ? 'Actualizando…' : '↻ Actualizar'}
+        </button>
       </div>
 
-      {locations.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-6">
+          <div className="w-8 h-8 rounded-full mx-auto mb-2 animate-pulse" style={{ background: `${PC.azul}22` }} />
+          <p className="text-sm font-semibold" style={{ color: PC.azulSec }}>Cargando puntos…</p>
+        </div>
+      ) : locations.length === 0 ? (
         <div className="text-center py-8">
           <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-3 border shadow"
@@ -533,9 +652,7 @@ function PointsPanel({
         </div>
       ) : (
         <div
-          className={`space-y-2 ${
-            compact ? 'max-h-[220px] overflow-y-auto -mr-1 pr-1' : ''
-          }`}
+          className={`space-y-2 ${compact ? 'max-h-[220px] overflow-y-auto -mr-1 pr-1' : ''}`}
           style={compact ? ({ WebkitOverflowScrolling: 'touch' } as any) : undefined}
         >
           {locations.map((loc, i) => {
@@ -564,7 +681,6 @@ function PointsPanel({
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    {/* Título */}
                     <h5
                       className="font-extrabold text-[14px] mb-1 truncate"
                       style={{ color: PC.azulSec }}
@@ -572,12 +688,10 @@ function PointsPanel({
                       {loc.code}
                     </h5>
 
-                    {/* Precios de compra/venta */}
                     <div className="text-[12px] font-semibold mb-1" style={{ color: PC.azul }}>
                       Venta: Bs{fmt2(loc.venta)} – Compra: Bs{fmt2(loc.compra)}
                     </div>
 
-                    {/* Fecha de actualización */}
                     {formattedDate && (
                       <div className="text-[11px] opacity-75" style={{ color: PC.azul }}>
                         Actualizado: {formattedDate.date} – {formattedDate.time}
@@ -598,7 +712,6 @@ function BestRatesList({ map }: { map: google.maps.Map | null }) {
   const [rates, setRates] = useState<Rate[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Función para formatear la fecha
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
@@ -676,7 +789,6 @@ function BestRatesList({ map }: { map: google.maps.Map | null }) {
               </h5>
               <p className="text-[12px] sm:text-xs truncate mb-1" style={{ color: PC.azul }}>{rate.ubication}</p>
 
-              {/* Precios */}
               <div className="grid grid-cols-2 gap-2 mb-1">
                 <div className="rounded-lg p-2 text-center border"
                      style={{ background: `${PC.verde}14`, borderColor: `${PC.verde}33` }}>
@@ -692,9 +804,8 @@ function BestRatesList({ map }: { map: google.maps.Map | null }) {
                 </div>
               </div>
 
-              {/* Fecha de actualización */}
               {formattedDate && (
-                <div className="text-[11px] opacity-75 text-center" style={{ color: PC.azul }}>
+                <div className="text:[11px] opacity-75 text-center" style={{ color: PC.azul }}>
                   Actualizado: {formattedDate.date} – {formattedDate.time}
                 </div>
               )}
@@ -711,12 +822,14 @@ function ExchangePointsTable({
   locations,
   bestRates,
   map,
-  onLocationSelect
+  loading = false,
+  onRefresh
 }: {
   locations: any[];
   bestRates: Rate[];
   map: google.maps.Map | null;
-  onLocationSelect?: (position: { lat: number; lng: number }) => void;
+  loading?: boolean;
+  onRefresh: () => void;
 }) {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const [data, setData] = useState<any[]>([]);
@@ -728,7 +841,6 @@ function ExchangePointsTable({
 
       let dateObj: Date | null = null;
 
-      // PRIMERO intenta usar la fecha de la location (loc.actualizado)
       if (loc.actualizado) {
         const parsed = new Date(loc.actualizado);
         if (!isNaN(parsed.getTime())) {
@@ -736,7 +848,6 @@ function ExchangePointsTable({
         }
       }
 
-      // SI NO, intenta con la fecha de bestRates
       if (!dateObj && rateInfo?.updated_at) {
         const fixed = rateInfo.updated_at.replace(' ', 'T');
         const parsed = new Date(fixed);
@@ -745,7 +856,6 @@ function ExchangePointsTable({
         }
       }
 
-      // SI NO HAY FECHA VÁLIDA, no mostrar fecha o mostrar "No disponible"
       if (!dateObj) {
         return {
           code: loc.code,
@@ -773,7 +883,7 @@ function ExchangePointsTable({
         time: dateObj.toLocaleTimeString('es-BO', {
           hour: '2-digit',
           minute: '2-digit',
-          hour12: true  // Formato 12 horas
+          hour12: true
         }),
         position: loc.position,
         rawDate: dateObj,
@@ -797,7 +907,6 @@ function ExchangePointsTable({
       let valueA = a[sortConfig.key];
       let valueB = b[sortConfig.key];
 
-      // Manejo especial para fechas y horas
       if (sortConfig.key === 'rawDate' || sortConfig.key === 'rawTime') {
         if ((valueA === null || valueA === 'N/D') && (valueB === null || valueB === 'N/D')) return 0;
         if (valueA === null || valueA === 'N/D') return sortConfig.direction === 'asc' ? 1 : -1;
@@ -807,7 +916,6 @@ function ExchangePointsTable({
         return 0;
       }
 
-      // Manejo para precios (sale y buy)
       if (sortConfig.key === 'sale' || sortConfig.key === 'buy') {
         if (valueA === null || valueA === 'N/D' || valueA === 0) valueA = sortConfig.direction === 'asc' ? Infinity : -Infinity;
         if (valueB === null || valueB === 'N/D' || valueB === 0) valueB = sortConfig.direction === 'asc' ? Infinity : -Infinity;
@@ -820,7 +928,6 @@ function ExchangePointsTable({
         return 0;
       }
 
-      // Manejo para otros campos (como 'code')
       if (valueA === null || valueA === 'N/D') valueA = sortConfig.direction === 'asc' ? Infinity : -Infinity;
       if (valueB === null || valueB === 'N/D') valueB = sortConfig.direction === 'asc' ? Infinity : -Infinity;
 
@@ -831,7 +938,6 @@ function ExchangePointsTable({
   }, [data, sortConfig]);
 
   const handleRowClick = (position: { lat: number; lng: number }) => {
-    if (onLocationSelect) onLocationSelect(position);
     focusWithBounce(map, position, 'Punto de cambio');
   };
 
@@ -851,14 +957,25 @@ function ExchangePointsTable({
 
   return (
     <div>
-      <div className="flex items-center gap-2 mb-0 pb-2 border-b" style={{ borderColor: `${PC.azul}1A` }}>
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow border"
-             style={{ background: PC.azul, borderColor: PC.azulSec }}>
-          <img src="/pictures/location.png" alt="Puntos de cambio" className="w-7 h-7 object-contain drop-shadow" />
+      <div className="flex items-center justify-between gap-2 mb-0 pb-2 border-b" style={{ borderColor: `${PC.azul}1A` }}>
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow border"
+               style={{ background: PC.azul, borderColor: PC.azulSec }}>
+            <img src="/pictures/location.png" alt="Puntos de cambio" className="w-7 h-7 object-contain drop-shadow" />
+          </div>
+          <h4 className="font-extrabold text-sm sm:text-base" style={{ color: PC.azulSec }}>
+            Puntos de Referencia Cambiaria
+          </h4>
         </div>
-        <h4 className="font-extrabold text-sm sm:text-base" style={{ color: PC.azulSec }}>
-          Puntos de Referencia Cambiaria
-        </h4>
+
+        <button
+          onClick={onRefresh}
+          className="text-xs font-bold px-3 py-1.5 rounded-lg border hover:bg-gray-50"
+          style={{ color: PC.azulSec, borderColor: `${PC.azul}33` }}
+          title="Actualizar sección"
+        >
+          {loading ? 'Actualizando…' : '↻ Actualizar'}
+        </button>
       </div>
 
       <div className="overflow-x-auto">
@@ -963,6 +1080,12 @@ function ExchangePointsTable({
               ))}
             </tbody>
           </table>
+
+          {loading && (
+            <div className="py-3 text-center text-xs" style={{ color: PC.azulSec }}>
+              Actualizando datos…
+            </div>
+          )}
         </div>
       </div>
     </div>
