@@ -79,28 +79,26 @@ class LocationMoneyChangerPriceController extends Controller
 
     public function getAllBestUsdSales()
 {
-    // Paso 1: Obtener el precio de venta mínimo por cada casa de cambio
-    $minPrices = LocationMoneyChangerPrice::select('id_location_money_changer', DB::raw('MIN(price_sale) as min_price_sale'))
+    // Paso 1: Obtener el último registro por cada casa de cambio
+    $latestIds = LocationMoneyChangerPrice::select(DB::raw('MAX(id) as id'))
         ->groupBy('id_location_money_changer')
+        ->pluck('id');
+
+    // Paso 2: Traer los detalles de esos precios
+    $prices = LocationMoneyChangerPrice::whereIn('id', $latestIds)
+        ->with(['locationMoneyChanger'])
         ->get();
 
-    // Paso 2: Traer todos los registros que tengan ese precio mínimo por cada casa de cambio
     $result = [];
-    foreach ($minPrices as $min) {
-        $prices = LocationMoneyChangerPrice::where('id_location_money_changer', $min->id_location_money_changer)
-            ->where('price_sale', $min->min_price_sale)
-            ->with(['locationMoneyChanger'])
-            ->get();
-        foreach ($prices as $item) {
-            $result[] = [
-                'price_sale' => $item->price_sale,
-                'price_buy' => $item->price_buy,
-                'location' => $item->locationMoneyChanger->code,
-                'ubication' => $item->locationMoneyChanger->ubication_name,
-                'lat' => floatval($item->locationMoneyChanger->lan),
-                'lng' => floatval($item->locationMoneyChanger->log),
-            ];
-        }
+    foreach ($prices as $item) {
+        $result[] = [
+            'price_sale' => $item->price_sale,
+            'price_buy' => $item->price_buy,
+            'location' => $item->locationMoneyChanger->code,
+            'ubication' => $item->locationMoneyChanger->ubication_name,
+            'lat' => floatval($item->locationMoneyChanger->lan),
+            'lng' => floatval($item->locationMoneyChanger->log),
+        ];
     }
 
     return response()->json([
